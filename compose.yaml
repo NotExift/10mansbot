@@ -1,0 +1,5 @@
+services:
+  csbot:
+    image: "python-csbot:v1.2.6"
+    env_file:
+      - .env
