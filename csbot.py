@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+from discord.ui import Button, View
 import random
 from valve.rcon import RCON
 import asyncio
@@ -8,6 +9,10 @@ import configparser
 import datetime
 from dotenv import load_dotenv
 import os
+import botui
+
+PLAYER_COUNT = 4
+TEAM_SIZE = 2
 
 load_dotenv()
 # Create a bot instance
@@ -26,7 +31,6 @@ async def on_ready():
     SERVER_IP = os.getenv("SERVER_IP")
     SERVER_PORT = os.getenv("SERVER_PORT")
     RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-    API_KEY = os.getenv("API_KEY")
     print("Bot is ready!")
     try:
         synced = await bot.tree.sync()
@@ -71,15 +75,16 @@ async def display_queue(ctx):
         if player_count != len(previous_queue):
             queue_display = '\n'.join([format_username(user.name) for user in queue])
             embed = discord.Embed(title="Current Queue", description=queue_display, color=0x00ff00)
-            embed.set_footer(text=f"Player count: {player_count}/10")
+            embed.set_footer(text=f"Player count: {player_count}/{str(PLAYER_COUNT)}")
             if queue_message:
                 await queue_message.delete()
             queue_message = await channel.send(embed=embed)
             previous_queue = list(queue)
 
-        if player_count == 10 and not game_ongoing:
+        if player_count == PLAYER_COUNT and not game_ongoing:
             game_ongoing = True
             team1_captain, team2_captain = random.sample(queue, 2)  # Select two random captains
+            team1_captain = queue[0] # test
             captain_role = discord.utils.get(ctx.guild.roles, name="captain")
             await team1_captain.add_roles(captain_role)
             await team2_captain.add_roles(captain_role)
@@ -97,23 +102,56 @@ async def display_queue(ctx):
                 print(f"Error in start_map_ban: {e}")
         await asyncio.sleep(3)  
 
+''' ================================================== PLAYER PICK ================================================== '''
+
+class playerButton(Button):
+    def __init__(self, player):
+        super().__init__(label=player.name, style=discord.ButtonStyle.green)
+        self.player = player
+    
+    async def callback(self, interaction):
+        global current_cap, team1_captain, team2_captain, team1, team2
+
+        if interaction.user == current_cap:
+            if current_cap == team1_captain and len(team1) < TEAM_SIZE:
+                team1.append(self.player)
+                current_cap = team2_captain
+            elif current_cap == team2_captain and len(team2) < TEAM_SIZE:
+                team2.append(self.player)
+                current_cap = team1_captain
+
+            # Remove this button from the view
+            player_button_menu.remove_item(self)
+
+            player_picks_embed.clear_fields()
+            player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
+            player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
+
+            await interaction.message.edit(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
+
 async def pick_players(team1_captain, team2_captain, players, channel):
-    global team1
-    global team2
+    global team1, team2, current_cap, player_button_menu, player_picks_embed
     team1 = [team1_captain]
     team2 = [team2_captain]
-    while len(team1) < 5 or len(team2) < 5:
-        if len(team1) < 5:
-            await channel.send(f"{team1_captain.mention}, please pick a player: {', '.join([player.name for player in players if player not in team1 and player not in team2])}")
-            player_pick = await bot.wait_for('message', check=lambda m: m.author == team1_captain and m.content in [player.name for player in players])
-            picked_player = next(player for player in players if player.name == player_pick.content)
-            team1.append(picked_player)
-        if len(team2) < 5:
-            await channel.send(f"{team2_captain.mention}, please pick a player: {', '.join([player.name for player in players if player not in team1 and player not in team2])}")
-            player_pick = await bot.wait_for('message', check=lambda m: m.author == team2_captain and m.content in [player.name for player in players])
-            picked_player = next(player for player in players if player.name == player_pick.content)
-            team2.append(picked_player)
+    current_cap = team1_captain
+
+    player_button_menu = View()
+    for player in players:
+        if player != team1_captain and player != team2_captain:
+            player_button_menu.add_item(playerButton(player))
+
+    player_picks_embed = discord.Embed(title="Player Picks", color=0x00ff00)
+    player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
+    player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
+
+    await channel.send(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
+
+    while len(team1) < TEAM_SIZE or len(team2) < TEAM_SIZE:
+        await asyncio.sleep(1)
+
     return team1, team2
+
+''' ================================================== BOT COMMANDS ================================================== '''
 
 @bot.tree.command(description="End the current 10 mans game")
 async def endgame(ctx: discord.Interaction):
@@ -149,7 +187,6 @@ async def open_queue(ctx: discord.Interaction):
         queue_open = True
         queue_task = asyncio.create_task(display_queue(ctx))
         await ctx.channel.send("Queue is now open. Players can join!")
-        await ctx.response.send_message(f"Current settings are {SERVER_IP}:{SERVER_PORT}", ephemeral=True)
 
     else:
         await ctx.response.send_message("You do not have permissions to open the queue.", ephemeral=True)
@@ -213,6 +250,8 @@ async def leave(ctx: discord.Interaction):
                 await ctx.response.send_message("You have left the queue.", ephemeral=True)
             else:
                 await ctx.response.send_message("You are not in the queue.", ephemeral=True)
+
+''' ================================================== MAP/CATEGORY BANS ================================================== '''
 
 async def ban_category(captain, categories, ban_channel):
     global game_ongoing
@@ -292,5 +331,34 @@ async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
 # Initialize queue status
 queue_open = False
 
+''' ================================================== TEST COMMANDS ================================================== ''' # remove after done
+#debug commands to add and remove players from queue
+@bot.tree.command(name="addplayer", description="Manually add a player to the queue")
+async def add_player(ctx: discord.Interaction, name: str):
+    global queue
+    user = discord.utils.get(ctx.guild.members, name=name)
+    if user:
+        if user not in queue:
+            queue.append(user)
+            await ctx.response.send_message(f"{user.name} has been added to the queue.", ephemeral=True)
+        else:
+            await ctx.response.send_message("This user is already in the queue.", ephemeral=True)
+    else:
+        await ctx.response.send_message("No user found with that name in this server.", ephemeral=True)
+
+@bot.tree.command(name="removeplayer", description="Manually remove a player from the queue")
+async def remove_player(ctx: discord.Interaction, name: str):
+    global queue
+    user = discord.utils.get(ctx.guild.members, name=name)
+    if user:
+        if user in queue:
+            queue.remove(user)
+            await ctx.response.send_message(f"{user.name} has been removed from the queue.", ephemeral=True)
+        else:
+            await ctx.response.send_message("This user is not in the queue.", ephemeral=True)
+    else:
+        await ctx.response.send_message("No user found with that name in this server.", ephemeral=True)
+
 # Run the bot with your token
+API_KEY = os.getenv("API_KEY")
 bot.run(API_KEY)

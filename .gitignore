@@ -1,3 +1,4 @@
 .env
 csbotimage
 prod.env
+__pycache__
