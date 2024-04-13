@@ -1,5 +1,5 @@
 services:
   csbot:
-    image: "python-csbot:v1.2.6"
+    image: "csbot:latest"
     env_file:
       - .env

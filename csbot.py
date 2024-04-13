@@ -17,6 +17,16 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 #bot command sync
 @bot.event
 async def on_ready():
+    global ban_channel, pick_channel, channel, game_channel_id, SERVER_IP, SERVER_PORT, RCON_PASSWORD
+    #initialize serverinfo
+    ban_channel = bot.get_channel(int(os.getenv("BAN_CHANNEL")))
+    pick_channel = bot.get_channel(int(os.getenv("PICK_CHANNEL")))
+    channel = bot.get_channel(int(os.getenv("QUEUE_CHANNEL")))
+    game_channel_id = os.getenv("GAMELOG_CHANNEL")
+    SERVER_IP = os.getenv("SERVER_IP")
+    SERVER_PORT = os.getenv("SERVER_PORT")
+    RCON_PASSWORD = os.getenv("RCON_PASSWORD")
+    API_KEY = os.getenv("API_KEY")
     print("Bot is ready!")
     try:
         synced = await bot.tree.sync()
@@ -26,16 +36,6 @@ async def on_ready():
 
 # Initialize queues for each team
 queue = []
-
-# Set your server details
-SERVER_IP = os.getenv("SERVER_IP")
-SERVER_PORT = os.getenv("SERVER_PORT")
-RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-ban_channel_id = os.getenv("BAN_CHANNEL")
-pick_channel_id = os.getenv("PICK_CHANNEL")
-channel_id = os.getenv("QUEUE_CHANNEL") #channel queue is in
-game_channel_id = os.getenv("GAMELOG_CHANNEL")
-
 queue_message = None
 game_ongoing = False
 team1_captain = None
@@ -51,16 +51,13 @@ for category in maps.sections():
     for map_name, map_id in maps.items(category):
         map_ids[map_name] = map_id
 
-ban_channel = bot.get_channel(ban_channel_id)
-pick_channel = bot.get_channel(pick_channel_id)
-channel = bot.get_channel(channel_id)
-
 def format_username(username):
     return username.replace("_", "\_")
     
 async def display_queue(ctx):
     global queue_message, game_ongoing, team1_captain, team2_captain, team1, team2
     previous_queue = []
+    queue_message = await channel.send(embed=discord.Embed(title="Queue now open", color=0x00ff00))
     while True:
         if not queue_open:
             embed = discord.Embed(title="Queue is currently closed.", color=0x00ff00)
@@ -146,12 +143,11 @@ async def endgame(ctx: discord.Interaction):
 
 @bot.tree.command(name="openqueue")
 async def open_queue(ctx: discord.Interaction):
-    global queue_open
+    global queue_open, channel
     global queue_task
     if "Admin" in [role.name for role in ctx.user.roles]:  # Replace "Admin" with your actual admin role name
         queue_open = True
         queue_task = asyncio.create_task(display_queue(ctx))
-        await channel.send("Queue is Open")
         await ctx.channel.send("Queue is now open. Players can join!")
         await ctx.response.send_message(f"Current settings are {SERVER_IP}:{SERVER_PORT}", ephemeral=True)
 
@@ -170,12 +166,12 @@ async def close_queue(ctx: discord.Interaction):
         queue_task.cancel()
         try:
             queue.clear()
+            print("queue clear success")
             team1.clear()
             team2.clear()
         except:
             print("failed")
         await ctx.response.send_message("Queue is now closed.")
-        await display_queue(ctx)
     elif queue_open == False:
         await ctx.response.send_message("Queue is already closed.", ephemeral=True)
     else:
@@ -297,4 +293,4 @@ async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
 queue_open = False
 
 # Run the bot with your token
-bot.run("MTIyNTkzMTU0MDU3NjYwMDE3NQ.GKWm-4.gRzYOeinZ69Eg9nzZnL1hKEEBx1E3rplSfGfOA")
+bot.run(API_KEY)
