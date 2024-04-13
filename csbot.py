@@ -31,7 +31,10 @@ queue = []
 SERVER_IP = os.getenv("SERVER_IP")
 SERVER_PORT = os.getenv("SERVER_PORT")
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-
+ban_channel_id = os.getenv("BAN_CHANNEL")
+pick_channel_id = os.getenv("PICK_CHANNEL")
+channel_id = os.getenv("QUEUE_CHANNEL") #channel queue is in
+game_channel_id = os.getenv("GAMELOG_CHANNEL")
 
 queue_message = None
 game_ongoing = False
@@ -48,21 +51,16 @@ for category in maps.sections():
     for map_name, map_id in maps.items(category):
         map_ids[map_name] = map_id
 
-ban_channel_id = 1226052057614647387  # Replace with your actual ban channel ID
 ban_channel = bot.get_channel(ban_channel_id)
+pick_channel = bot.get_channel(pick_channel_id)
+channel = bot.get_channel(channel_id)
 
-
-def escape_underscores(username):
+def format_username(username):
     return username.replace("_", "\_")
     
 async def display_queue(ctx):
     global queue_message, game_ongoing, team1_captain, team2_captain, team1, team2
-    channel_id = 1226042349269028924
-    channel = bot.get_channel(channel_id)
-    pick_channel_id = 1226052057614647387
-    pick_channel = bot.get_channel(pick_channel_id)
     previous_queue = []
-
     while True:
         if not queue_open:
             embed = discord.Embed(title="Queue is currently closed.", color=0x00ff00)
@@ -100,8 +98,7 @@ async def display_queue(ctx):
                 await start_map_ban(ctx, team1_captain, team2_captain, channel, team1, team2)  # Assuming start_map_ban uses the channel for communication
             except Exception as e:
                 print(f"Error in start_map_ban: {e}")
-
-        await asyncio.sleep(1)  # Sleep for 1 second to prevent the loop from running too fast
+        await asyncio.sleep(3)  
 
 async def pick_players(team1_captain, team2_captain, players, channel):
     global team1
@@ -154,8 +151,10 @@ async def open_queue(ctx: discord.Interaction):
     if "Admin" in [role.name for role in ctx.user.roles]:  # Replace "Admin" with your actual admin role name
         queue_open = True
         queue_task = asyncio.create_task(display_queue(ctx))
+        await channel.send("Queue is Open")
         await ctx.channel.send("Queue is now open. Players can join!")
         await ctx.response.send_message(f"Current settings are {SERVER_IP}:{SERVER_PORT}", ephemeral=True)
+
     else:
         await ctx.response.send_message("You do not have permissions to open the queue.", ephemeral=True)
 
@@ -246,8 +245,6 @@ async def ban_map(captain, maps, ban_channel):
 async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
     global categories
     global game_ongoing
-    # Add the ID of the channel where you want to send the message
-    game_channel_id = 1226059844067393598  # Replace with your actual channel ID
     game_channel = bot.get_channel(game_channel_id)
     await ban_channel.send("Map List\nhttps://imgur.com/a/4a5HkAq")
     while len(categories) > 1:
@@ -290,9 +287,8 @@ async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
                 await player.send(embed=player_embed)
             except Exception as e:
                 print(f"Couldn't send message to {player.name}: {e}")
-
         # Create a valve rcon connection to the counterstrike server
-        with RCON((SERVER_IP, SERVER_PORT), RCON_PASSWORD) as rcon:
+        with RCON((SERVER_IP, int(SERVER_PORT)), RCON_PASSWORD) as rcon:
             # Send the command wsmap <mapid>
             rcon.execute(f'css_say Map changing...')
             rcon.execute(f'css_wsmap {map_ids[map_list[0]]}')
