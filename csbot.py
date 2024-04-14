@@ -13,8 +13,8 @@ import os
 load_dotenv()
 
 # Global Variables
-PLAYER_COUNT = 4
-TEAM_SIZE = 2
+PLAYER_COUNT = 10
+TEAM_SIZE = 5
 SERVER_IP = os.getenv("SERVER_IP")
 SERVER_PORT = os.getenv("SERVER_PORT")
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
