@@ -2,4 +2,4 @@ services:
   csbot:
     image: "csbot:latest"
     env_file:
-      - .env
+      - prod.env
