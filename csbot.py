@@ -351,7 +351,7 @@ async def wingmanmode(ctx: discord.Interaction, enabled: bool):
         TEAM_SIZE = 5
         PLAYER_COUNT = 10
         await ctx.response.send_message(f"Wingman mode has been disabled.", ephemeral=True)
-
+#changemap for testing
 @bot.tree.command(name="changemap", description="test the rcon changemap")
 async def changemap(ctx: discord.Interaction, map: str):
     global finalmap
