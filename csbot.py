@@ -323,10 +323,18 @@ async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
             except Exception as e:
                 print(f"Couldn't send message to {player.name}: {e}")
         # Create a valve rcon connection to the counterstrike server
-        with RCON((SERVER_IP, int(SERVER_PORT)), RCON_PASSWORD) as rcon:
-            # Send the command wsmap <mapid>
-            rcon.execute(f'css_say Map changing...')
-            rcon.execute(f'css_wsmap {map_ids[map_list[0]]}')
+    await change_map(SERVER_IP, SERVER_PORT, RCON_PASSWORD, map_list[0], map_ids)
+
+async def change_map(server_ip, server_port, rcon_password, final_map, map_ids):
+    # Connect to the Counter-Strike server using RCON
+    try:
+        with RCON((server_ip, int(server_port)), rcon_password) as rcon:
+            # Notify players of the map change and set the new map
+            rcon.execute('css_say Map changing...')
+            rcon.execute(f'css_wsmap {map_ids[final_map]}')
+            print("RCON commands executed successfully.")
+    except Exception as e:
+        print(f"Failed to execute RCON commands: {e}")
 
 ''' ================================================== TEST COMMANDS ================================================== ''' # remove after done
 #Wingman mode for testing
@@ -343,6 +351,13 @@ async def wingmanmode(ctx: discord.Interaction, enabled: bool):
         TEAM_SIZE = 5
         PLAYER_COUNT = 10
         await ctx.response.send_message(f"Wingman mode has been disabled.", ephemeral=True)
+
+@bot.tree.command(name="changemap", description="test the rcon changemap")
+async def changemap(ctx: discord.Interaction, map: str):
+    global finalmap
+    finalmap = map
+    await change_map(SERVER_IP, SERVER_PORT, RCON_PASSWORD, finalmap, map_ids)
+    await ctx.response.send_message(f"Changing map to {map}.", ephemeral=True)
 
 #debug commands to add and remove players from queue
 @bot.tree.command(name="addplayer", description="Manually add a player to the queue")
