@@ -9,38 +9,28 @@ import configparser
 import datetime
 from dotenv import load_dotenv
 import os
-import botui
-
-PLAYER_COUNT = 4
-TEAM_SIZE = 2
 
 load_dotenv()
+
+# Global Variables
+PLAYER_COUNT = 4
+TEAM_SIZE = 2
+SERVER_IP = os.getenv("SERVER_IP")
+SERVER_PORT = os.getenv("SERVER_PORT")
+RCON_PASSWORD = os.getenv("RCON_PASSWORD")
+
 # Create a bot instance
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="/", intents=intents)
 
-#bot command sync
-@bot.event
-async def on_ready():
-    global ban_channel, pick_channel, channel, game_channel_id, SERVER_IP, SERVER_PORT, RCON_PASSWORD
-    #initialize serverinfo
-    ban_channel = bot.get_channel(int(os.getenv("BAN_CHANNEL")))
-    pick_channel = bot.get_channel(int(os.getenv("PICK_CHANNEL")))
-    channel = bot.get_channel(int(os.getenv("QUEUE_CHANNEL")))
-    game_channel_id = os.getenv("GAMELOG_CHANNEL")
-    SERVER_IP = os.getenv("SERVER_IP")
-    SERVER_PORT = os.getenv("SERVER_PORT")
-    RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-    print("Bot is ready!")
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} commands(s)")
-    except Exception as e:
-        print(e)
+ban_channel = None
+pick_channel = None
+channel = None
+game_channel_id = None
 
-# Initialize queues for each team
 queue = []
 queue_message = None
+queue_open = False
 game_ongoing = False
 team1_captain = None
 team2_captain = None
@@ -57,110 +47,28 @@ for category in maps.sections():
 
 def format_username(username):
     return username.replace("_", "\_")
-    
-async def display_queue(ctx):
-    global queue_message, game_ongoing, team1_captain, team2_captain, team1, team2
-    previous_queue = []
-    queue_message = await channel.send(embed=discord.Embed(title="Queue now open", color=0x00ff00))
-    while True:
-        if not queue_open:
-            embed = discord.Embed(title="Queue is currently closed.", color=0x00ff00)
-            if queue_message:
-                await queue_message.delete()
-            queue_message = await channel.send(embed=embed)
-            return  # Exit the function if queue is closed
 
-        # Update queue display if it has changed
-        player_count = len(queue)
-        if player_count != len(previous_queue):
-            queue_display = '\n'.join([format_username(user.name) for user in queue])
-            embed = discord.Embed(title="Current Queue", description=queue_display, color=0x00ff00)
-            embed.set_footer(text=f"Player count: {player_count}/{str(PLAYER_COUNT)}")
-            if queue_message:
-                await queue_message.delete()
-            queue_message = await channel.send(embed=embed)
-            previous_queue = list(queue)
-
-        if player_count == PLAYER_COUNT and not game_ongoing:
-            game_ongoing = True
-            team1_captain, team2_captain = random.sample(queue, 2)  # Select two random captains
-            team1_captain = queue[0] # test
-            captain_role = discord.utils.get(ctx.guild.roles, name="captain")
-            await team1_captain.add_roles(captain_role)
-            await team2_captain.add_roles(captain_role)
-            team1, team2 = await pick_players(team1_captain, team2_captain, queue, pick_channel)  # Captains pick players in pick_channel
-            embed = discord.Embed(title="Game Ongoing", color=0x00ff00)
-            embed.add_field(name="Team 1", value='\n'.join([user.name for user in team1]), inline=True)
-            embed.add_field(name="Team 2", value='\n'.join([user.name for user in team2]), inline=True)
-            embed.set_footer(text=f"Captains: {team1_captain.name}, {team2_captain.name}")
-            if queue_message:  # If there is a previous message, delete it
-                await queue_message.delete()
-            queue_message = await channel.send(embed=embed)
-            try:
-                await start_map_ban(ctx, team1_captain, team2_captain, channel, team1, team2)  # Assuming start_map_ban uses the channel for communication
-            except Exception as e:
-                print(f"Error in start_map_ban: {e}")
-        await asyncio.sleep(3)  
-
-''' ================================================== PLAYER PICK ================================================== '''
-
-class playerButton(Button):
-    def __init__(self, player):
-        super().__init__(label=player.name, style=discord.ButtonStyle.green)
-        self.player = player
-    
-    async def callback(self, interaction):
-        global current_cap, team1_captain, team2_captain, team1, team2
-
-        if interaction.user == current_cap:
-            if current_cap == team1_captain and len(team1) < TEAM_SIZE:
-                team1.append(self.player)
-                current_cap = team2_captain
-            elif current_cap == team2_captain and len(team2) < TEAM_SIZE:
-                team2.append(self.player)
-                current_cap = team1_captain
-
-            # Remove this button from the view
-            player_button_menu.remove_item(self)
-
-            player_picks_embed.clear_fields()
-            player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
-            player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
-
-            await interaction.message.edit(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
-
-async def pick_players(team1_captain, team2_captain, players, channel):
-    global team1, team2, current_cap, player_button_menu, player_picks_embed
-    team1 = [team1_captain]
-    team2 = [team2_captain]
-    current_cap = team1_captain
-
-    player_button_menu = View()
-    for player in players:
-        if player != team1_captain and player != team2_captain:
-            player_button_menu.add_item(playerButton(player))
-
-    player_picks_embed = discord.Embed(title="Player Picks", color=0x00ff00)
-    player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
-    player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
-
-    await channel.send(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
-
-    while len(team1) < TEAM_SIZE or len(team2) < TEAM_SIZE:
-        await asyncio.sleep(1)
-
-    return team1, team2
+# Event
+@bot.event
+async def on_ready():
+    global ban_channel, pick_channel, channel, game_channel_id
+    ban_channel = bot.get_channel(int(os.getenv("BAN_CHANNEL")))
+    pick_channel = bot.get_channel(int(os.getenv("PICK_CHANNEL")))
+    channel = bot.get_channel(int(os.getenv("QUEUE_CHANNEL")))
+    game_channel_id = os.getenv("GAMELOG_CHANNEL")
+    print("Bot is ready!")
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} commands(s)")
+    except Exception as e:
+        print(e)
 
 ''' ================================================== BOT COMMANDS ================================================== '''
 
 @bot.tree.command(description="End the current 10 mans game")
 async def endgame(ctx: discord.Interaction):
-    global game_ongoing
-    global team1_captain
-    global team2_captain
-    global queue
-    global team1
-    global team2
+    global game_ongoing, team1_captain, team2_captain, queue, team1, team2
+
     # Check if the user is a captain or an admin
     if ctx.user == team1_captain or ctx.user == team2_captain or "Admin" in [role.name for role in ctx.user.roles] or "captain" in [role.name for role in ctx.user.roles]:
         game_ongoing = False
@@ -181,8 +89,7 @@ async def endgame(ctx: discord.Interaction):
 
 @bot.tree.command(name="openqueue")
 async def open_queue(ctx: discord.Interaction):
-    global queue_open, channel
-    global queue_task
+    global queue_open, queue_task, channel
     if "Admin" in [role.name for role in ctx.user.roles]:  # Replace "Admin" with your actual admin role name
         queue_open = True
         queue_task = asyncio.create_task(display_queue(ctx))
@@ -193,11 +100,7 @@ async def open_queue(ctx: discord.Interaction):
 
 @bot.tree.command(name="closequeue")
 async def close_queue(ctx: discord.Interaction):
-    global queue
-    global team1
-    global team2
-    global queue_open
-    global queue_task
+    global queue, queue_open, queue_task, team1, team2
     if "Admin" in [role.name for role in ctx.user.roles] and queue_open == True:  # Replace "Admin" with your actual admin role name
         queue_open = False
         queue_task.cancel()
@@ -250,6 +153,100 @@ async def leave(ctx: discord.Interaction):
                 await ctx.response.send_message("You have left the queue.", ephemeral=True)
             else:
                 await ctx.response.send_message("You are not in the queue.", ephemeral=True)
+    
+async def display_queue(ctx):
+    global queue_message, game_ongoing, team1_captain, team2_captain, team1, team2
+    previous_queue = []
+    queue_message = await channel.send(embed=discord.Embed(title="Queue now open", color=0x00ff00))
+    while True:
+        if not queue_open:
+            embed = discord.Embed(title="Queue is currently closed.", color=0x00ff00)
+            if queue_message:
+                await queue_message.delete()
+            queue_message = await channel.send(embed=embed)
+            return  # Exit the function if queue is closed
+
+        # Update queue display if it has changed
+        player_count = len(queue)
+        if player_count != len(previous_queue):
+            queue_display = '\n'.join([format_username(user.name) for user in queue])
+            embed = discord.Embed(title="Current Queue", description=queue_display, color=0x00ff00)
+            embed.set_footer(text=f"Player count: {player_count}/{str(PLAYER_COUNT)}")
+            if queue_message:
+                await queue_message.delete()
+            queue_message = await channel.send(embed=embed)
+            previous_queue = list(queue)
+
+        if player_count == PLAYER_COUNT and not game_ongoing:
+            game_ongoing = True
+            team1_captain, team2_captain = random.sample(queue, 2)  # Select two random captains
+            captain_role = discord.utils.get(ctx.guild.roles, name="captain")
+            await team1_captain.add_roles(captain_role)
+            await team2_captain.add_roles(captain_role)
+            team1, team2 = await pick_players(team1_captain, team2_captain, queue, pick_channel)  # Captains pick players in pick_channel
+            embed = discord.Embed(title="Game Ongoing", color=0x00ff00)
+            embed.add_field(name="Team 1", value='\n'.join([user.name for user in team1]), inline=True)
+            embed.add_field(name="Team 2", value='\n'.join([user.name for user in team2]), inline=True)
+            embed.set_footer(text=f"Captains: {team1_captain.name}, {team2_captain.name}")
+            if queue_message:  # If there is a previous message, delete it
+                await queue_message.delete()
+            queue_message = await channel.send(embed=embed)
+            try:
+                await start_map_ban(ctx, team1_captain, team2_captain, channel, team1, team2)  # Assuming start_map_ban uses the channel for communication
+            except Exception as e:
+                print(f"Error in start_map_ban: {e}")
+        await asyncio.sleep(3)  
+
+''' ================================================== PLAYER PICK ================================================== '''
+
+class playerButton(Button):
+    def __init__(self, player):
+        super().__init__(label=player.name, style=discord.ButtonStyle.green)
+        self.player = player
+    
+    async def callback(self, interaction):
+        global current_cap, team1_captain, team2_captain, team1, team2
+
+        if interaction.user == current_cap:
+            if current_cap == team1_captain and len(team1) < TEAM_SIZE:
+                team1.append(self.player)
+                current_cap = team2_captain
+            elif current_cap == team2_captain and len(team2) < TEAM_SIZE:
+                team2.append(self.player)
+                current_cap = team1_captain
+
+            # Remove this button from the view
+            player_button_menu.remove_item(self)
+
+            player_picks_embed.clear_fields()
+            player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
+            player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
+
+            await interaction.message.edit(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
+        else:
+            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+
+async def pick_players(team1_captain, team2_captain, players, channel):
+    global team1, team2, current_cap, player_button_menu, player_picks_embed
+    team1 = [team1_captain]
+    team2 = [team2_captain]
+    current_cap = team1_captain
+
+    player_button_menu = View()
+    for player in players:
+        if player != team1_captain and player != team2_captain:
+            player_button_menu.add_item(playerButton(player))
+
+    player_picks_embed = discord.Embed(title="Player Picks", color=0x00ff00)
+    player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
+    player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
+
+    await channel.send(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
+
+    while len(team1) < TEAM_SIZE or len(team2) < TEAM_SIZE:
+        await asyncio.sleep(1)
+
+    return team1, team2
 
 ''' ================================================== MAP/CATEGORY BANS ================================================== '''
 
@@ -327,9 +324,6 @@ async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
             # Send the command wsmap <mapid>
             rcon.execute(f'css_say Map changing...')
             rcon.execute(f'css_wsmap {map_ids[map_list[0]]}')
-
-# Initialize queue status
-queue_open = False
 
 ''' ================================================== TEST COMMANDS ================================================== ''' # remove after done
 #debug commands to add and remove players from queue
