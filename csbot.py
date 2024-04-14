@@ -93,8 +93,7 @@ async def open_queue(ctx: discord.Interaction):
     if "Admin" in [role.name for role in ctx.user.roles]:  # Replace "Admin" with your actual admin role name
         queue_open = True
         queue_task = asyncio.create_task(display_queue(ctx))
-        await ctx.channel.send("Queue is now open. Players can join!")
-
+        await ctx.response.send_message("Queue is now open. Players can join!")
     else:
         await ctx.response.send_message("You do not have permissions to open the queue.", ephemeral=True)
 
@@ -104,6 +103,10 @@ async def close_queue(ctx: discord.Interaction):
     if "Admin" in [role.name for role in ctx.user.roles] and queue_open == True:  # Replace "Admin" with your actual admin role name
         queue_open = False
         queue_task.cancel()
+        embed = discord.Embed(title="Queue is currently closed.", color=0x00ff00)
+        if queue_message:
+            await queue_message.delete()
+        await channel.send(embed=embed)
         try:
             queue.clear()
             print("queue clear success")
@@ -326,6 +329,21 @@ async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
             rcon.execute(f'css_wsmap {map_ids[map_list[0]]}')
 
 ''' ================================================== TEST COMMANDS ================================================== ''' # remove after done
+#Wingman mode for testing
+@bot.tree.command(name="wingmanmode",description="Make it into wingman mode, (DO THIS BEFORE YOU OPENQUEUE)")
+async def wingmanmode(ctx: discord.Interaction, enabled: bool):
+    global TEAM_SIZE, PLAYER_COUNT
+    if queue_open:
+        await ctx.response.send_message(f"Queue must be closed to adjust mode", ephemeral=True)
+    if enabled:
+        TEAM_SIZE = 2
+        PLAYER_COUNT = 4
+        await ctx.response.send_message(f"Wingman mode has been enabled.", ephemeral=True)
+    else:
+        TEAM_SIZE = 5
+        PLAYER_COUNT = 10
+        await ctx.response.send_message(f"Wingman mode has been disabled.", ephemeral=True)
+
 #debug commands to add and remove players from queue
 @bot.tree.command(name="addplayer", description="Manually add a player to the queue")
 async def add_player(ctx: discord.Interaction, name: str):
