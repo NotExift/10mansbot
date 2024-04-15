@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=steam://connect/169.150.232.56:26030/okkkkkkk">
+    <title>Redirecting to Steam</title>
+    <script>
+        window.onload = function() {
+            // Check if the protocol can be handled
+            if (navigator.registerProtocolHandler) {
+                window.location.href = 'steam://connect/169.150.232.56:26030/okkkkkkk';
+            } else {
+                document.getElementById('message').textContent = 'Please click the link if you are not redirected: steam://connect/169.150.232.56:26030/okkkkkkk';
+            }
+        }
+    </script>
+</head>
+<body>
+    <p id="message">Redirecting to Steam...</p>
+</body>
+</html>

@@ -26,7 +26,7 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 ban_channel = None
 pick_channel = None
 channel = None
-game_channel_id = None
+game_channel = None
 
 queue = []
 queue_message = None
@@ -51,11 +51,11 @@ def format_username(username):
 # Event
 @bot.event
 async def on_ready():
-    global ban_channel, pick_channel, channel, game_channel_id
+    global ban_channel, pick_channel, channel, game_channel
     ban_channel = bot.get_channel(int(os.getenv("BAN_CHANNEL")))
     pick_channel = bot.get_channel(int(os.getenv("PICK_CHANNEL")))
     channel = bot.get_channel(int(os.getenv("QUEUE_CHANNEL")))
-    game_channel_id = os.getenv("GAMELOG_CHANNEL")
+    game_channel = bot.get_channel(int(os.getenv("GAMELOG_CHANNEL")))
     print("Bot is ready!")
     try:
         synced = await bot.tree.sync()
@@ -195,7 +195,7 @@ async def display_queue(ctx):
                 await queue_message.delete()
             queue_message = await channel.send(embed=embed)
             try:
-                await start_map_ban(ctx, team1_captain, team2_captain, channel, team1, team2)  # Assuming start_map_ban uses the channel for communication
+                await start_map_ban(ctx, team1_captain, team2_captain, ban_channel, team1, team2)  # Assuming start_map_ban uses the channel for communication
             except Exception as e:
                 print(f"Error in start_map_ban: {e}")
         await asyncio.sleep(3)  
@@ -244,68 +244,119 @@ async def pick_players(team1_captain, team2_captain, players, channel):
     player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
     player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
 
-    await channel.send(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
+    picks_msg = await channel.send(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
 
     while len(team1) < TEAM_SIZE or len(team2) < TEAM_SIZE:
         await asyncio.sleep(1)
+
+    await picks_msg.edit(content=None, embed=player_picks_embed, view=None)
 
     return team1, team2
 
 ''' ================================================== MAP/CATEGORY BANS ================================================== '''
 
-async def ban_category(captain, categories, ban_channel):
-    global game_ongoing
-    while True:
-        await asyncio.sleep(0)  # Yield control to the event loop
-        if not game_ongoing:
-            return
-        # Prompt the captain to ban a category
-        await ban_channel.send(f"{captain.mention}, please ban a category: {', '.join(categories)}")
-        category_ban = await bot.wait_for('message', check=lambda m: m.author == captain and m.content in categories)
-        categories.remove(category_ban.content)
-        return categories
+class categoryButton(Button):
+    def __init__(self, category_name):
+        super().__init__(label=category_name, style=discord.ButtonStyle.red)
+        self.category_name = category_name
 
-async def ban_map(captain, maps, ban_channel):
-    global game_ongoing
-    while True:
-        await asyncio.sleep(0)  # Yield control to the event loop
-        if not game_ongoing:
-            return
-    # Prompt the captain to ban a map
-        await ban_channel.send(f"{captain.mention}, please ban a map: {', '.join(maps)}")
-        map_ban = await bot.wait_for('message', check=lambda m: m.author == captain and m.content in maps)
-        maps.remove(map_ban.content)
-        return maps
+    async def callback(self, interaction):
+        global current_cap, team1_captain, team2_captain, categories, category_button_menu, category_embed
+
+        if interaction.user == current_cap:
+            if current_cap == team1_captain and len(categories) > 1:
+                current_cap = team2_captain
+            elif current_cap == team2_captain and len(categories) > 1:
+                current_cap = team1_captain
+
+            categories.remove(self.category_name)
+
+            category_button_menu.remove_item(self)
+
+            category_embed.clear_fields()
+            for category in categories:
+                category_embed.add_field(name=category, value='\n'.join(map_name for map_name in maps[category]), inline=True)
+            category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+
+            await interaction.message.edit(content=f"{current_cap.mention} please ban a category!", embed=category_embed, view=category_button_menu)
+        else:
+            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+
+class mapButton(Button):
+    def __init__(self, map_name):
+        super().__init__(label=map_name, style=discord.ButtonStyle.red)
+        self.map_name = map_name
+
+    async def callback(self, interaction):
+        global current_cap, team1_captain, team2_captain, map_list, map_button_menu, map_embed
+
+        if interaction.user == current_cap:
+            if current_cap == team1_captain and len(map_list) > 1:
+                current_cap = team2_captain
+            elif current_cap == team2_captain and len(map_list) > 1:
+                current_cap = team1_captain
+
+            map_list.remove(self.map_name)
+
+            map_button_menu.remove_item(self)
+
+            map_embed.clear_fields()
+            map_embed.add_field(name=categories[0], value='\n'.join(map_name for map_name in map_list), inline=True)
+            map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+
+            await interaction.message.edit(content=f"{current_cap.mention} please ban a map!", embed=map_embed, view=map_button_menu)
+        else:
+            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
 
 async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
-    global categories
-    global game_ongoing
-    game_channel = bot.get_channel(game_channel_id)
-    await ban_channel.send("Map List\nhttps://imgur.com/a/4a5HkAq")
+    global current_cap, categories, game_ongoing, category_bool, map_list, category_button_menu, category_embed, map_button_menu, map_embed
+    category_button_menu = View()
+    for category in categories:
+        category_button_menu.add_item(categoryButton(category))
+
+    category_embed = discord.Embed(title="Category Veto", color=0x00ff00)
+    for category in categories:
+        category_embed.add_field(name=category, value='\n'.join(map_name for map_name in maps[category]), inline=True)
+    category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+
+    veto_msg = await ban_channel.send(content=f"{current_cap.mention}, please ban a category!", embed=category_embed, view=category_button_menu)
     while len(categories) > 1:
         if not game_ongoing:
             return
-        categories = await ban_category(captain1, categories, ban_channel)
-        if len(categories) > 1:
-            categories = await ban_category(captain2, categories, ban_channel)
+        await asyncio.sleep(1)
+
     map_list = list(maps.options(categories[0]))
+
+    map_button_menu = View()
+    for map_name in map_list:
+        map_button_menu.add_item(mapButton(map_name))
+
+    map_embed = discord.Embed(title="Map Veto", color=0x00ff00)
+    map_embed.add_field(name=categories[0], value='\n'.join(map_name for map_name in map_list), inline=True)
+    map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+
+    await veto_msg.edit(content=f"{current_cap.mention}, please ban a map!", embed=map_embed, view=map_button_menu)
     while len(map_list) > 1:
         if not game_ongoing:
             return
-        map_list = await ban_map(captain1, map_list, ban_channel)
-        if len(map_list) > 1:
-            map_list = await ban_map(captain2, map_list, ban_channel)
+        await asyncio.sleep(1)
+
+    await veto_msg.edit(content=None, embed=map_embed, view=None)
+
     if game_ongoing:
         await ban_channel.send(f"The final map is: {map_list[0]}\n Reminder that one of the captains should /endgame after the game is over for the queue to reopen!")
         current_date_time = datetime.datetime.now().strftime("%B %d, %Y, %H:%M:%S")
+        button = Button(label="Click to Join Server", style=discord.ButtonStyle.url, url="http://connect.exift.gay/")
+        view = View()
+        view.add_item(button)
         # Create the embed message
         embed = discord.Embed(title=f"Game: {current_date_time}", color=0x00ff00)
         embed.add_field(name="Map", value=map_list[0], inline=False)
         embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in team1]), inline=True)
         embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in team2]), inline=True)
-        embed.set_footer(text=f"connect {SERVER_PORT}:{SERVER_IP}; password okkkkkkk")
+        embed.set_footer(text=f"connect {SERVER_IP}:{SERVER_PORT}; password okkkkkkk")
         # Send the embed message to the game channel
-        await game_channel.send(embed=embed)
+        await game_channel.send(embed=embed, view=view)
         # Create a new embed message for the players
         player_embed = discord.Embed(title="Your game is ready! The server may take a minute before switching maps, please be patient.", color=0x00ff00)
         player_embed.add_field(name="Map", value=map_list[0], inline=False)
@@ -319,7 +370,7 @@ async def start_map_ban(ctx, captain1, captain2, ban_channel, team1, team2):
         # Send the embed message to each player with the "Match Notifications" role
         for player in players_with_role:
             try:
-                await player.send(embed=player_embed)
+                await player.send(embed=player_embed, view=view)
             except Exception as e:
                 print(f"Couldn't send message to {player.name}: {e}")
         # Create a valve rcon connection to the counterstrike server
@@ -338,53 +389,53 @@ async def change_map(server_ip, server_port, rcon_password, final_map, map_ids):
 
 ''' ================================================== TEST COMMANDS ================================================== ''' # remove after done
 #Wingman mode for testing
-@bot.tree.command(name="wingmanmode",description="Make it into wingman mode, (DO THIS BEFORE YOU OPENQUEUE)")
-async def wingmanmode(ctx: discord.Interaction, enabled: bool):
-    global TEAM_SIZE, PLAYER_COUNT
-    if queue_open:
-        await ctx.response.send_message(f"Queue must be closed to adjust mode", ephemeral=True)
-    if enabled:
-        TEAM_SIZE = 2
-        PLAYER_COUNT = 4
-        await ctx.response.send_message(f"Wingman mode has been enabled.", ephemeral=True)
-    else:
-        TEAM_SIZE = 5
-        PLAYER_COUNT = 10
-        await ctx.response.send_message(f"Wingman mode has been disabled.", ephemeral=True)
+#@bot.tree.command(name="wingmanmode",description="Make it into wingman mode, (DO THIS BEFORE YOU OPENQUEUE)")
+#async def wingmanmode(ctx: discord.Interaction, enabled: bool):
+#    global TEAM_SIZE, PLAYER_COUNT
+#    if queue_open:
+#        await ctx.response.send_message(f"Queue must be closed to adjust mode", ephemeral=True)
+#    if enabled:
+#        TEAM_SIZE = 2
+#        PLAYER_COUNT = 4
+#        await ctx.response.send_message(f"Wingman mode has been enabled.", ephemeral=True)
+#    else:
+#        TEAM_SIZE = 5
+#        PLAYER_COUNT = 10
+#        await ctx.response.send_message(f"Wingman mode has been disabled.", ephemeral=True)
 #changemap for testing
-@bot.tree.command(name="changemap", description="test the rcon changemap")
-async def changemap(ctx: discord.Interaction, map: str):
-    global finalmap
-    finalmap = map
-    await change_map(SERVER_IP, SERVER_PORT, RCON_PASSWORD, finalmap, map_ids)
-    await ctx.response.send_message(f"Changing map to {map}.", ephemeral=True)
+#@bot.tree.command(name="changemap", description="test the rcon changemap")
+#async def changemap(ctx: discord.Interaction, map: str):
+#    global finalmap
+#    finalmap = map
+#    await change_map(SERVER_IP, SERVER_PORT, RCON_PASSWORD, finalmap, map_ids)
+#    await ctx.response.send_message(f"Changing map to {map}.", ephemeral=True)
 
 #debug commands to add and remove players from queue
-@bot.tree.command(name="addplayer", description="Manually add a player to the queue")
-async def add_player(ctx: discord.Interaction, name: str):
-    global queue
-    user = discord.utils.get(ctx.guild.members, name=name)
-    if user:
-        if user not in queue:
-            queue.append(user)
-            await ctx.response.send_message(f"{user.name} has been added to the queue.", ephemeral=True)
-        else:
-            await ctx.response.send_message("This user is already in the queue.", ephemeral=True)
-    else:
-        await ctx.response.send_message("No user found with that name in this server.", ephemeral=True)
+#@bot.tree.command(name="addplayer", description="Manually add a player to the queue")
+#async def add_player(ctx: discord.Interaction, name: str):
+#    global queue
+#    user = discord.utils.get(ctx.guild.members, name=name)
+#    if user:
+#        if user not in queue:
+#            queue.append(user)
+#            await ctx.response.send_message(f"{user.name} has been added to the queue.", ephemeral=True)
+#        else:
+#           await ctx.response.send_message("This user is already in the queue.", ephemeral=True)
+#    else:
+#       await ctx.response.send_message("No user found with that name in this server.", ephemeral=True)
 
-@bot.tree.command(name="removeplayer", description="Manually remove a player from the queue")
-async def remove_player(ctx: discord.Interaction, name: str):
-    global queue
-    user = discord.utils.get(ctx.guild.members, name=name)
-    if user:
-        if user in queue:
-            queue.remove(user)
-            await ctx.response.send_message(f"{user.name} has been removed from the queue.", ephemeral=True)
-        else:
-            await ctx.response.send_message("This user is not in the queue.", ephemeral=True)
-    else:
-        await ctx.response.send_message("No user found with that name in this server.", ephemeral=True)
+#@bot.tree.command(name="removeplayer", description="Manually remove a player from the queue")
+#async def remove_player(ctx: discord.Interaction, name: str):
+#    global queue
+#    user = discord.utils.get(ctx.guild.members, name=name)
+#    if user:
+#        if user in queue:
+#            queue.remove(user)
+#            await ctx.response.send_message(f"{user.name} has been removed from the queue.", ephemeral=True)
+#        else:
+#            await ctx.response.send_message("This user is not in the queue.", ephemeral=True)
+#    else:
+#        await ctx.response.send_message("No user found with that name in this server.", ephemeral=True)
 
 # Run the bot with your token
 API_KEY = os.getenv("API_KEY")
