@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 import configparser
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import os
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 # Create a bot instance
 intents = discord.Intents.all()
