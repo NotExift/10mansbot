@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 import asyncio
 import init
-from game_logic import display_queue, change_map
+from queue import display_queue
+from game_logic import change_map
 
 @init.bot.tree.command(name="openqueue")
 async def open_queue(ctx: discord.Interaction):
