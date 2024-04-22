@@ -6,47 +6,24 @@ import asyncio
 import datetime
 import init
 
-async def display_queue(ctx):
-    previous_queue = []
-    init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=discord.Embed(title="Queue now open", color=0x00ff00))
-    while True:
-        if not init.QUEUE_OPEN:
-            embed = discord.Embed(title="Queue is currently closed.", color=0x00ff00)
-            if init.QUEUE_MSG:
-                await init.QUEUE_MSG.delete()
-            init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=embed)
-            return  # Exit the function if queue is closed
-
-        # Update queue display if it has changed
-        curr_player_count = len(init.QUEUE)
-        if curr_player_count != len(previous_queue):
-            queue_display = '\n'.join([init.format_username(user.name) for user in init.QUEUE])
-            embed = discord.Embed(title="Current Queue", description=queue_display, color=0x00ff00)
-            embed.set_footer(text=f"Player count: {curr_player_count}/{str(init.PLAYER_COUNT)}")
-            if init.QUEUE_MSG:
-                await init.QUEUE_MSG.delete()
-            init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=embed)
-            previous_queue = list(init.QUEUE)
-
-        if curr_player_count == init.PLAYER_COUNT and not init.GAME_ONGOING:
-            init.GAME_ONGOING = True
-            init.TEAM1_CAP, init.TEAM2_CAP = random.sample(init.QUEUE, 2)  # Select two random captains
-            captain_role = discord.utils.get(ctx.guild.roles, name="captain")
-            await init.TEAM1_CAP.add_roles(captain_role)
-            await init.TEAM2_CAP.add_roles(captain_role)
-            init.TEAM1, init.TEAM2 = await pick_players()  # Captains pick players in pick_channel
-            embed = discord.Embed(title="Game Ongoing", color=0x00ff00)
-            embed.add_field(name="Team 1", value='\n'.join([user.name for user in init.TEAM1]), inline=True)
-            embed.add_field(name="Team 2", value='\n'.join([user.name for user in init.TEAM2]), inline=True)
-            embed.set_footer(text=f"Captains: {init.TEAM1_CAP.name}, {init.TEAM2_CAP.name}")
-            if init.QUEUE_MSG:  # If there is a previous message, delete it
-                await init.QUEUE_MSG.delete()
-            init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=embed)
-            try:
-                await start_map_ban(ctx)  # Assuming start_map_ban uses the channel for communication
-            except Exception as e:
-                print(f"Error in start_map_ban: {e}")
-        await asyncio.sleep(3)
+async def start_match(ctx):
+    init.GAME_ONGOING = True
+    init.TEAM1_CAP, init.TEAM2_CAP = random.sample(init.QUEUE, 2)  # Select two random captains
+    captain_role = discord.utils.get(ctx.guild.roles, name="captain")
+    await init.TEAM1_CAP.add_roles(captain_role)
+    await init.TEAM2_CAP.add_roles(captain_role)
+    init.TEAM1, init.TEAM2 = await pick_players()  # Captains pick players in pick_channel
+    embed = discord.Embed(title="Game Ongoing", color=0x00ff00)
+    embed.add_field(name="Team 1", value='\n'.join([user.name for user in init.TEAM1]), inline=True)
+    embed.add_field(name="Team 2", value='\n'.join([user.name for user in init.TEAM2]), inline=True)
+    embed.set_footer(text=f"Captains: {init.TEAM1_CAP.name}, {init.TEAM2_CAP.name}")
+    if init.QUEUE_MSG:  # If there is a previous message, delete it
+        await init.QUEUE_MSG.delete()
+    init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=embed)
+    try:
+        await start_map_ban(ctx)  # Assuming start_map_ban uses the channel for communication
+    except Exception as e:
+        print(f"Error in start_map_ban: {e}")
 
 ''' ================================================== PLAYER PICK ================================================== '''
 

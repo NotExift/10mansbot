@@ -29,6 +29,7 @@ QUEUE = []
 QUEUE_MSG = None
 QUEUE_OPEN = False
 GAME_ONGOING = False
+ACCEPT_TIME = 30
 TEAM1_CAP = None
 TEAM2_CAP = None
 TEAM1 = None
@@ -36,9 +37,10 @@ TEAM2 = None
 
 # Config Variables
 MAPS = configparser.ConfigParser()
-MAPS.read("maps.cfg")
+MAPS.read("../configs/maps.cfg")
 CATEGORIES = None
 MAP_IDS = None
+QUEUEPOP_MP3 = "../configs/baad.mp3"
 
 def format_username(username):
     return username.replace("_", "\_")

@@ -37,21 +37,22 @@ async def close_queue(ctx: discord.Interaction):
     else:
         await ctx.response.send_message("You do not have permissions to close the queue.", ephemeral=True)
 
+@init.bot.tree.command(name="wingmanmode",description="Toggle Wingman Mode (2v2)")
+async def wingmanmode(self, ctx: discord.Interaction, enabled: bool):
+    if "Admin" in [role.name for role in ctx.user.roles]:
+        if enabled:
+            init.TEAM_SIZE = 2
+            init.PLAYER_COUNT = 4
+        else:
+            init.TEAM_SIZE = 5
+            init.PLAYER_COUNT = 10
+        await ctx.response.send_message(f"Wingman mode has been {'enabled' if enabled else 'disabled'}.", ephemeral=True)
+    else:
+        await ctx.response.send_message("You do not have the required permissions to perform this action.", ephemeral=True)
+
 ''' ================================================== TEST COMMANDS ================================================== '''
 
-@init.bot.tree.command(name="wingmanmode",description="Toggle Wingman Mode (2v2)")
-async def wingmanmode(ctx: discord.Interaction, enabled: bool):
-   if init.QUEUE_OPEN:
-       await ctx.response.send_message(f"Queue must be closed to adjust mode", ephemeral=True)
-   if enabled:
-       init.TEAM_SIZE = 2
-       init.PLAYER_COUNT = 4
-       await ctx.response.send_message(f"Wingman mode has been enabled.", ephemeral=True)
-   else:
-       init.TEAM_SIZE = 5
-       init.PLAYER_COUNT = 10
-       await ctx.response.send_message(f"Wingman mode has been disabled.", ephemeral=True)
-
+'''
 @init.bot.tree.command(name="changemap", description="Test the RCON changemap")
 async def changemap(ctx: discord.Interaction, map: str):
    await change_map(map)
@@ -80,3 +81,4 @@ async def remove_player(ctx: discord.Interaction, name: str):
            await ctx.response.send_message("This user is not in the queue.", ephemeral=True)
    else:
        await ctx.response.send_message("No user found with that name in this server.", ephemeral=True)
+'''
