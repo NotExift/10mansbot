@@ -185,6 +185,8 @@ async def start_map_ban(ctx):
         embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
         embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
         embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
+        imageid = init.MAP_IDS.get(map_list[0])
+        embed.set_thumbnail(url=f'attachment://{imageid}.jpg')
         # Send the embed message to the game channel
         await init.GAME_CHANNEL.send(embed=embed, view=view)
         # Create a new embed message for the players
@@ -193,6 +195,7 @@ async def start_map_ban(ctx):
         player_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
         player_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
         player_embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
+        player_embed.set_thumbnail(url=f'attachment://{imageid}.jpg')
         # Get the role object for "Match Notifications"
         match_notifications_role = discord.utils.get(ctx.guild.roles, name="Match Notifications")
         # Filter the players who have the "Match Notifications" role
