@@ -1,0 +1,64 @@
+Section: OG Maps
+Dust: https://steamuserimages-a.akamaihd.net/ugc/2304220737336493480/CAF1B703B12846D0278FCC0BC3F9E5E1497C0381/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_cache: https://steamuserimages-a.akamaihd.net/ugc/2207387544105932950/40A16B561703E9E9C75786BEB7C57D8DD3BA3ACE/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_cbble_2015: https://steamuserimages-a.akamaihd.net/ugc/2214142943534820865/0D9975EF23F4D1069CEE5D2C8B79BAA5D7680091/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_canals: https://steamuserimages-a.akamaihd.net/ugc/2291832573620015614/4AFC6C98C9F15D41074D2CFF679633A13FDC2912/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Apollo: https://steamuserimages-a.akamaihd.net/ugc/2520397230604427572/C34FE423AC117BEEE90E375B02D0AA2D9FF60DEB/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Aztec: https://steamuserimages-a.akamaihd.net/ugc/2304220737338704006/33C0393E4BFC155632DE8B115E458F6A0A2A1732/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_train: https://steamuserimages-a.akamaihd.net/ugc/2502387438201392293/6F2B5989E7D2CC2D1D1E95590C5065829B439CEC/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+
+Section: OG Maps 2
+Iris: https://steamuserimages-a.akamaihd.net/ugc/2451717972197898255/4BF33F81EF86406B6FE572CC0BF75C9B755FE8D0/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Tides: https://steamuserimages-a.akamaihd.net/ugc/2304220023009430024/43AD53F381DE63B8DB48029FB40A258287CED115/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Piranesi: https://steamuserimages-a.akamaihd.net/ugc/2521527737890084170/D44A967840FC2A5040AAFEF58C0144B5723F87AC/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Port: https://steamuserimages-a.akamaihd.net/ugc/5948762624222559578/6847DE4605D14CF1C8EA83056A8DF5EC6EA6984B/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_cbble_Halloween: https://steamuserimages-a.akamaihd.net/ugc/2354888676944565713/464C51FBB587403692D7E734621277843CA984B2/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Thera: https://steamuserimages-a.akamaihd.net/ugc/2487751203410601589/165D5F7AB6C468A301B5CA020BD50FCE97AA1169/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Season: https://steamuserimages-a.akamaihd.net/ugc/2310972872039007352/A1AA75BA5E237A588EB821ED98E92A46583B714C/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_nuke_classic: https://steamuserimages-a.akamaihd.net/ugc/2475364402344014286/E56B14213E79814547DE066B39010BB859ACB21A/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+
+Section: Mirrored Maps
+Dust2_Mirror: https://steamuserimages-a.akamaihd.net/ugc/2527155798044898649/6F77433CFAA05D4242C716BE0A715F2865CD623E/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Inferno_Mirror: https://steamuserimages-a.akamaihd.net/ugc/2383035539697092588/F8CC8E026B07951E9CC75236B7826E49838FDC82/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Overpass_Mirror: https://steamuserimages-a.akamaihd.net/ugc/2544040494585554910/63BF5A0A1DF1219A68FEABAA30BE1C33DBD9E31C/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Mirage_Mirror: https://steamuserimages-a.akamaihd.net/ugc/2544040588741298446/049EB17F9276051BB7C6228B302C0F9C82A4FB65/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Nuke_Mirror: https://steamuserimages-a.akamaihd.net/ugc/5961147523198796117/8257682971F903F376939ABB4AB17FE1E5EA07F0/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Office_Mirror: https://steamuserimages-a.akamaihd.net/ugc/2319980405522579460/9B1251516F1D040DE4154BD16FE63134FA1CC91A/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+
+Section: WTF
+mini_mirage: https://steamuserimages-a.akamaihd.net/ugc/2262560445617228990/387DB7B8938184F4EE7D7205350D75D3A8AA445B/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_minecraft_landscape: https://steamuserimages-a.akamaihd.net/ugc/2310971513121217696/5108D413AC01F45F0478560E19ED87B848C8B812/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+mg_minecraft_adventure: https://steamuserimages-a.akamaihd.net/ugc/5993798699008272082/72AF3190AEC5AA9C11892973643B225B74637D4B/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Aim_Plywood: https://steamuserimages-a.akamaihd.net/ugc/2310974553289756880/8EDA12ED3D1B449CEE80B7CAFDBE51B4D25F8F1F/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+minecraft_battle_arena: https://steamuserimages-a.akamaihd.net/ugc/2369525375721979166/45BFEF011EE40A2321DF91BFFE9A42AF8B840A7B/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Russia_Home: https://steamuserimages-a.akamaihd.net/ugc/2229905542252268740/F85EFAD90878FB395735202F31F8CCFAF94CAB14/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Minecraft_Hunger_Games: https://steamuserimages-a.akamaihd.net/ugc/2475366304438517863/3AE6FF6D67E0FFEA6FE0559FEDA0EF08C31935FF/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+De_Big_Mirage: https://steamuserimages-a.akamaihd.net/ugc/2419067507446913750/69CB83195146AD88E6437FE8031445CA1A2F6AD1/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Bikinibottom: https://steamuserimages-a.akamaihd.net/ugc/2470860802717404752/BDE9012201FC7D8BD7C7B6EE882C10AF527A5E0B/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+
+Section: New Gen 1
+Ferry: https://steamuserimages-a.akamaihd.net/ugc/2369525375730471212/7024DD0F35ABED8B043605A9F0E8DF211B79EDBF/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_Codewise: https://steamuserimages-a.akamaihd.net/ugc/2354888676955425963/F09FE178443D1BC8FB17DC45F3293C59F9860DF6/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Akiba: https://steamuserimages-a.akamaihd.net/ugc/2413438007938058609/00F828DF9F415008786BB86EBB0A9DEC315F3279/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+sandstone: https://steamuserimages-a.akamaihd.net/ugc/2426949527381496339/3488E7094F0994E746171C7648CF229B1ECD24E5/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Mills: https://steamuserimages-a.akamaihd.net/ugc/2321111176728716380/3CB10F79F7016E5A45695C47F352363B2E984F98/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+De_Dalen: https://steamuserimages-a.akamaihd.net/ugc/2499009738468931261/4FF07694392D4EA67AC0F7CD1F5BA9EEB96B870D/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Wine_house_barrel_roll: https://steamuserimages-a.akamaihd.net/ugc/2500134200302857501/B022C277C4E1DE563A40F4636E3BF2D8586ED242/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+
+Section: New Gen 2
+Sevirno: https://steamuserimages-a.akamaihd.net/ugc/2367273575938820154/ABBC355CA75053E281975BA57E56566BDE2C1F4D/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Breach_3.0: https://steamuserimages-a.akamaihd.net/ugc/2333495943838262579/71ABCD415A5F7828A93092A5B66E57C25DB961BB/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Tomb_Bomb: https://steamuserimages-a.akamaihd.net/ugc/2361644076362344675/30778D1F1EDF5AE4EC69EBE458D36D0F6FD3AEE0/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_rio: https://steamuserimages-a.akamaihd.net/ugc/2495626893908250134/55C648244BEA338B577073445D54983EEF52F1EB/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Scotland: https://steamuserimages-a.akamaihd.net/ugc/2298587973071112563/C6CBE7CC0178AF3AB9CEE73B01BF35AC10593959/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Argent: https://steamuserimages-a.akamaihd.net/ugc/2470860802714622036/D74FA54E1A4C8E6AA90D4B3166E4B4D7E417BFCA/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Ipe: https://steamuserimages-a.akamaihd.net/ugc/2501261368142581429/CF84B53D54B6195175C5DADFB7ED7C1A5803DB82/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Outlaw: https://steamuserimages-a.akamaihd.net/ugc/2301967354003162842/8AB73A2633F5AEF1CEEBF116F00B8B8F45F1D93C/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+
+Section: New Gen 3
+Station: https://steamuserimages-a.akamaihd.net/ugc/2332370678783186749/E45DB320704D86BCF286008570DC75D6649D4BA9/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Whiterun: https://steamuserimages-a.akamaihd.net/ugc/2290707478033998994/E3EFEE52D8C53CD5C3DFE23E50A843D8F1BDF212/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Tawken: https://steamuserimages-a.akamaihd.net/ugc/2440461055068419902/F669A19F6D7A38FD59C29E7EE63DEB9FFED9D743/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+Rouge: https://steamuserimages-a.akamaihd.net/ugc/2447214780797902924/D9E4D4929EFF13E8376E528D86000B330C01AB43/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+de_DontComeInHere: https://steamuserimages-a.akamaihd.net/ugc/5964525301431973956/34C0D82A74A2AFEFA2C39FC6C9D814AFDF385EE9/?imw=268&imh=151&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true
+
