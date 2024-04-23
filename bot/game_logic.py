@@ -8,7 +8,8 @@ import init
 
 async def start_match(ctx):
     init.GAME_ONGOING = True
-    init.TEAM1_CAP, init.TEAM2_CAP = random.sample(init.QUEUE, 2)  # Select two random captains
+    if init.TEAM1_CAP is None or init.TEAM2_CAP is None: #check if captains has been set manually
+        init.TEAM1_CAP, init.TEAM2_CAP = random.sample(init.QUEUE, 2)  # Select two random captains
     captain_role = discord.utils.get(ctx.guild.roles, name="captain")
     await init.TEAM1_CAP.add_roles(captain_role)
     await init.TEAM2_CAP.add_roles(captain_role)
