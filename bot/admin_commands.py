@@ -38,8 +38,8 @@ async def close_queue(ctx: discord.Interaction):
     else:
         await ctx.response.send_message("You do not have permissions to close the queue.", ephemeral=True)
 
-@init.bot.tree.command(name="wingmanmode",description="Toggle Wingman Mode (2v2)")
-async def wingmanmode(self, ctx: discord.Interaction, enabled: bool):
+@init.bot.tree.command(name="wingmanmode", description="Toggle Wingman Mode (2v2)")
+async def wingmanmode(ctx: discord.Interaction, enabled: bool):
     if "Admin" in [role.name for role in ctx.user.roles]:
         if enabled:
             init.TEAM_SIZE = 2

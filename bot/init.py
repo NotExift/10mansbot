@@ -37,10 +37,10 @@ TEAM2 = None
 
 # Config Variables
 MAPS = configparser.ConfigParser()
-MAPS.read("../configs/maps.cfg")
+MAPS.read("configs/maps.cfg")
 CATEGORIES = None
 MAP_IDS = None
-QUEUEPOP_MP3 = "../configs/baad.mp3"
+QUEUEPOP_MP3 = "configs/baad.mp3"
 
 def format_username(username):
     return username.replace("_", "\_")
