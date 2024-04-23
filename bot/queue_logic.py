@@ -66,11 +66,11 @@ async def display_queue(ctx):
                 accept_match_view = View()
                 accept_match_view.add_item(acceptMatchButton())
                 await init.QUEUE_MSG.edit(view=accept_match_view)
-
-                start_time = time.time()
                 await queue_pop_sound()
-
+                
+                start_time = time.time()
                 while any(player not in accepted for player in init.QUEUE) and (time.time() - start_time) < init.ACCEPT_TIME:
+                    await init.QUEUE_MSG.edit(content=f"You have {init.ACCEPT_TIME - round(time.time()-start_time)}s left to accept if you haven't already!")
                     await asyncio.sleep(1)
 
                 await init.QUEUE_MSG.edit(view=None)
