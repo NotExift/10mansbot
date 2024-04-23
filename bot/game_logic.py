@@ -187,7 +187,7 @@ async def start_map_ban(ctx):
         embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
         imageid = init.MAP_IDS.get(map_list[0])
         try:
-            embed.set_thumbnail(url=f'attachment://{imageid}.jpg')
+            embed.set_thumbnail(url=f'attachment://thumbnail_cache/{imageid}.jpg')
         except:
             pass
         # Send the embed message to the game channel
@@ -199,7 +199,7 @@ async def start_map_ban(ctx):
         player_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
         player_embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
         try:
-            player_embed.set_thumbnail(url=f'attachment://{imageid}.jpg')
+            player_embed.set_thumbnail(url=f'attachment://thumbnail_cache/{imageid}.jpg')
         except:
             pass
         # Get the role object for "Match Notifications"
