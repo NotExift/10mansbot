@@ -4,16 +4,16 @@ from PIL import Image
 from io import BytesIO
 import os
 
-def ensure_cache_directory_exists(directory="thumbnail_cache"):
+def ensure_cache_directory_exists(directory="bot/thumbnail_cache"):
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
 
-def is_cached(id, cache_dir="thumbnail_cache"):
+def is_cached(id, cache_dir="bot/thumbnail_cache"):
     cached_image_path = os.path.join(cache_dir, f"{id}.jpg")
     return os.path.exists(cached_image_path), cached_image_path
 
-def cache_thumbnail(id, image_url, cache_dir="thumbnail_cache"):
+def cache_thumbnail(id, image_url, cache_dir="bot/thumbnail_cache"):
     cached_image_path = os.path.join(cache_dir, f"{id}.jpg")
     if not os.path.exists(cached_image_path):
         try:
@@ -76,5 +76,4 @@ def create_image_url_file(sections, output_path, cache_dir):
 
 # Usage example
 cache_directory = ensure_cache_directory_exists()
-map_sections = parse_file('maps.cfg')
-create_image_url_file(map_sections, 'thumbnail_urls.txt', cache_directory)
+map_sections = parse_file('configs/maps.cfg')

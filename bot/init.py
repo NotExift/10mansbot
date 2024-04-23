@@ -36,11 +36,14 @@ TEAM1 = None
 TEAM2 = None
 
 # Config Variables
+MAX_CONFIG_FILES = int(os.getenv('MAX_CONFIG_FILES', '5')) #max amount of configs this instance of the bot can have at once
+CONFIG_DIRECTORY = os.getenv('CONFIG_DIRECTORY', './configs')
+config_file = "configs/maps.cfg" #default config file
 MAPS = configparser.ConfigParser()
-MAPS.read("configs/maps.cfg")
+MAPS.read(config_file)
 CATEGORIES = None
 MAP_IDS = None
-QUEUEPOP_MP3 = "configs/baad.mp3"
+QUEUEPOP_MP3 = os.getenv(f"{CONFIG_DIRECTORY}/QUEUE_POP_AUDIO")
 
 def format_username(username):
     return username.replace("_", "\_")

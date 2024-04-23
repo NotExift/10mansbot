@@ -103,7 +103,7 @@ class categoryButton(Button):
             category_embed.clear_fields()
             for category in init.CATEGORIES:
                 category_embed.add_field(name=category, value='\n'.join(map_name for map_name in init.MAPS[category]), inline=True)
-            category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+            category_embed.set_image(file="bot/mapsimage.jpg")
 
             await interaction.message.edit(content=f"{current_cap.mention} please ban a category!", embed=category_embed, view=category_button_menu)
         else:

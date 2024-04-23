@@ -1,6 +1,7 @@
 import discord
-from discord.ext import commands
 import init
+from init import *
+from discord.ext import commands
 
 @init.bot.tree.command(name="joinqueue", description="Join the 10 mans queue")
 async def join(ctx: discord.Interaction):
@@ -55,3 +56,11 @@ async def endgame(ctx: discord.Interaction):
         await ctx.response.send_message("The game has ended.")
     else:
         await ctx.response.send_message("You do not have permissions to end the game.", ephemeral=True)
+
+@init.bot.tree.command(name="mappool", description="List the current loaded mappool")
+async def mappool(ctx: discord.Interaction):
+    mapimage = discord.File("bot/mapsimage.jpg")
+    try:
+        await ctx.response.send_message(file= mapimage)
+    except Exception as e:
+        await ctx.response.send_message(f"An error occurred: {e}", ephemeral=True)
