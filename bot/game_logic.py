@@ -48,7 +48,6 @@ class playerButton(Button):
             # Remove this button from the view
             player_button_menu.remove_item(self)
 
-            player_picks_embed = player_picks_embed(player_picks_embed)
             player_picks_embed.clear_fields()
             player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
             player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
@@ -106,7 +105,7 @@ class categoryButton(Button):
             category_embed.clear_fields()
             for category in init.CATEGORIES:
                 category_embed.add_field(name=category, value='\n'.join(map_name for map_name in init.MAPS[category]), inline=True)
-            category_embed.set_image(file="bot/mapsimage.jpg")
+            category_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
             await interaction.followup.send(content=f"You have removed {self.category_name}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please ban a category!", embed=category_embed, view=category_button_menu)
@@ -133,7 +132,7 @@ class mapButton(Button):
 
             map_embed.clear_fields()
             map_embed.add_field(name=init.CATEGORIES[0], value='\n'.join(map_name for map_name in map_list), inline=True)
-            map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+            map_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
             await interaction.followup.send(content=f"You have removed {self.map_name}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please ban a map!", embed=map_embed, view=map_button_menu)
@@ -163,7 +162,7 @@ async def start_map_ban(ctx):
     category_embed = discord.Embed(title="Category Veto", color=0x00ff00)
     for category in init.CATEGORIES:
         category_embed.add_field(name=category, value='\n'.join(map_name for map_name in init.MAPS[category]), inline=True)
-    category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+    category_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
     veto_msg = await init.BAN_CHANNEL.send(content=f"{current_cap.mention}, please ban a category!", embed=category_embed, view=category_button_menu)
     while len(init.CATEGORIES) > 1:
@@ -179,7 +178,7 @@ async def start_map_ban(ctx):
 
     map_embed = discord.Embed(title="Map Veto", color=0x00ff00)
     map_embed.add_field(name=init.CATEGORIES[0], value='\n'.join(map_name for map_name in map_list), inline=True)
-    map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+    map_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
     await veto_msg.edit(content=f"{current_cap.mention}, please ban a map!", embed=map_embed, view=map_button_menu)
     while len(map_list) > 1:
@@ -204,7 +203,7 @@ async def start_map_ban(ctx):
         embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
         imageid = init.MAP_IDS.get(map_list[0])
         try:
-            embed.set_thumbnail(url=f'attachment://thumbnail_cache/{imageid}.jpg')
+            embed.set_thumbnail(url=f"attachment://thumbnail_cache/{imageid}.jpg")
         except:
             pass
         # Send the embed message to the game channel

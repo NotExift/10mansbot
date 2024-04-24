@@ -27,7 +27,7 @@ class leaveQueueButton(Button):
             init.QUEUE.remove(interaction.user)
             await interaction.followup.send("You have been removed from the queue!", ephemeral=True)
         else:
-            await interaction.followup.send("You are cannot leave a queue you aren't in.", ephermeral=True)
+            await interaction.followup.send("You are cannot leave a queue you aren't in.", ephemeral=True)
 
 class acceptMatchButton(Button):
     def __init__(self):
@@ -47,7 +47,7 @@ async def display_queue(ctx):
     previous_queue = []
     join_queue_view = View()
     join_queue_view.add_item(joinQueueButton())
-    join_queue_view.add_itme(leaveQueueButton())
+    join_queue_view.add_item(leaveQueueButton())
     init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=discord.Embed(title="Queue now open", color=0x00ff00), view=join_queue_view)
 
     queue_lock = asyncio.Lock()

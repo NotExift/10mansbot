@@ -43,7 +43,7 @@ MAPS = configparser.ConfigParser()
 MAPS.read(config_file)
 CATEGORIES = None
 MAP_IDS = None
-QUEUEPOP_MP3 = os.getenv(f"{CONFIG_DIRECTORY}/QUEUE_POP_AUDIO")
+QUEUEPOP_MP3 = "configs/baad.mp3"
 
 def format_username(username):
     return username.replace("_", "\_")
