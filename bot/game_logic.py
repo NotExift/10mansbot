@@ -35,6 +35,7 @@ class playerButton(Button):
     
     async def callback(self, interaction):
         global current_cap, player_button_menu, player_picks_embed
+        await interaction.response.defer(ephemeral=True)
 
         if interaction.user == current_cap:
             if current_cap == init.TEAM1_CAP and len(init.TEAM1) < init.TEAM_SIZE:
@@ -52,9 +53,10 @@ class playerButton(Button):
             player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
             player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
 
+            await interaction.followup.send(content=f"You have selected {self.player}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
         else:
-            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+            await interaction.followup.send("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
 
 async def pick_players():
     global current_cap, player_button_menu, player_picks_embed
@@ -89,6 +91,7 @@ class categoryButton(Button):
 
     async def callback(self, interaction):
         global current_cap, category_button_menu, category_embed
+        await interaction.response.defer(ephemeral=True)
 
         if interaction.user == current_cap:
             if current_cap == init.TEAM1_CAP and len(init.CATEGORIES) > 1:
@@ -105,9 +108,10 @@ class categoryButton(Button):
                 category_embed.add_field(name=category, value='\n'.join(map_name for map_name in init.MAPS[category]), inline=True)
             category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
 
+            await interaction.followup.send(content=f"You have removed {self.category_name}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please ban a category!", embed=category_embed, view=category_button_menu)
         else:
-            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+            await interaction.followup.send("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
 
 class mapButton(Button):
     def __init__(self, map_name):
@@ -116,6 +120,7 @@ class mapButton(Button):
 
     async def callback(self, interaction):
         global current_cap, map_list, map_button_menu, map_embed
+        await interaction.response.defer(ephemeral=True)
 
         if interaction.user == current_cap:
             if current_cap == init.TEAM1_CAP and len(map_list) > 1:
@@ -124,16 +129,27 @@ class mapButton(Button):
                 current_cap = init.TEAM1_CAP
 
             map_list.remove(self.map_name)
-
             map_button_menu.remove_item(self)
 
             map_embed.clear_fields()
             map_embed.add_field(name=init.CATEGORIES[0], value='\n'.join(map_name for map_name in map_list), inline=True)
             map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
 
+            await interaction.followup.send(content=f"You have removed {self.map_name}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please ban a map!", embed=map_embed, view=map_button_menu)
         else:
-            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+            await interaction.followup.send("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+
+class copyIPButton(Button):
+    def __init__(self):
+        super().__init__(label="Copy: connect IP", style=discord.ButtonStyle.gray)
+
+    async def callback(self, interaction):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user in init.TEAM1 or interaction.user in init.TEAM2:
+            await interaction.followup.send(f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk", ephemeral=True)
+        else:
+            await interaction.followup.send("You are not in this match.", ephemeral=True)
 
 async def start_map_ban(ctx):
     global current_cap, map_list, category_button_menu, category_embed, map_button_menu, map_embed
@@ -179,6 +195,7 @@ async def start_map_ban(ctx):
         button = Button(label="Click to Join Server", style=discord.ButtonStyle.url, url="http://connect.exift.gay/")
         view = View()
         view.add_item(button)
+        view.add_item(copyIPButton())
         # Create the embed message
         embed = discord.Embed(title=f"Game: {current_date_time}", color=0x00ff00)
         embed.add_field(name="Map", value=map_list[0], inline=False)
