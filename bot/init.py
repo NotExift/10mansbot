@@ -24,13 +24,13 @@ QUEUE_CHANNEL = None
 GAME_CHANNEL = None
 VOICE_CHANNEL = None
 
-#SQL Variables
+# SQL Variables
 SQLHOST = os.getenv("SQLHOST")
 SQLUSER = os.getenv("SQLUSER")
-SQLPORT= os.getenv("SQLPORT")
+SQLPORT = os.getenv("SQLPORT")
 SQLUSERPASSWORD = os.getenv("SQLUSERPASS")
 
-#APIKEYS
+# APIKEYS
 STEAMAPIKEY = os.getenv("STEAMAPIKEY")
 FACEITAPIKEY = os.getenv("FACEITAPIKEY")
 
@@ -46,17 +46,21 @@ TEAM1 = None
 TEAM2 = None
 
 # Config Variables
-MAX_CONFIG_FILES = int(os.getenv('MAX_CONFIG_FILES', '5')) #max amount of configs this instance of the bot can have at once
-CONFIG_DIRECTORY = os.getenv('CONFIG_DIRECTORY', './configs')
-config_file = "configs/maps.cfg" #default config file
+MAX_CONFIG_FILES = int(
+    os.getenv("MAX_CONFIG_FILES", "5")
+)  # max amount of configs this instance of the bot can have at once
+CONFIG_DIRECTORY = os.getenv("CONFIG_DIRECTORY", "./configs")
+config_file = "configs/maps.cfg"  # default config file
 MAPS = configparser.ConfigParser()
 MAPS.read(config_file)
 CATEGORIES = None
 MAP_IDS = None
 QUEUEPOP_MP3 = os.getenv(f"{CONFIG_DIRECTORY}/QUEUE_POP_AUDIO")
 
+
 def format_username(username):
     return username.replace("_", "\_")
+
 
 def set_map_config():
     global CATEGORIES, MAP_IDS
@@ -65,6 +69,7 @@ def set_map_config():
     for category in MAPS.sections():
         for map_name, map_id in MAPS.items(category):
             MAP_IDS[map_name] = map_id
+
 
 # Event
 @bot.event
