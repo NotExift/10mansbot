@@ -44,7 +44,7 @@ MAPS.read(config_file)
 CATEGORIES = None
 MAP_IDS = None
 QUEUEPOP_MP3 = "configs/baad.mp3"
-CLEAR_ON_STARTUP = bool(os.getenv('CLEARCHANNEL_ON_STARTUP', False))
+CLEAR_ON_STARTUP = (os.getenv('CLEARCHANNEL_ON_STARTUP', "False"))
 
 def format_username(username):
     return username.replace("_", "\_")
@@ -79,9 +79,8 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
-        if CLEAR_ON_STARTUP:
-            await clear_queuechannel()
-        
     except Exception as e:
         print(e)
+    if CLEAR_ON_STARTUP == "True":
+            await clear_queuechannel()
 
