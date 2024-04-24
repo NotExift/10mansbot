@@ -79,8 +79,20 @@ async def display_queue(ctx):
                 accept_match_view = View()
                 accept_match_view.add_item(acceptMatchButton())
                 await init.QUEUE_MSG.edit(view=accept_match_view)
+                popmsg = discord.Embed(
+                    title="Your match has popped!",
+                    description=f"You have 30 seconds to accept!\n https://discord.com/channels/{init.GUILD_ID}/{init.QUEUE_CHANNEL}"
+                )
+                match_notifications_role = discord.utils.get(ctx.guild.roles, name="Match Notifications")
+                # Filter the players who have the "Match Notifications" role
+                players_with_role = [player for player in init.QUEUE if match_notifications_role in player.roles]
+                # Send the embed message to each player with the "Match Notifications" role
+                for player in players_with_role:
+                    try:
+                        await player.send(embed=popmsg, view=accept_match_view)
+                    except Exception as e:
+                        print(f"Couldn't send message to {player.name}: {e}")
                 await queue_pop_sound()
-                
                 start_time = time.time()
                 while any(player not in accepted for player in init.QUEUE) and (time.time() - start_time) < init.ACCEPT_TIME:
                     await init.QUEUE_MSG.edit(content=f"You have {init.ACCEPT_TIME - round(time.time()-start_time)}s left to accept if you haven't already!")

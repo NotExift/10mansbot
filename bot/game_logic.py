@@ -202,20 +202,22 @@ async def start_map_ban(ctx):
         embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
         embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
         imageid = init.MAP_IDS.get(map_list[0])
+        ifile = discord.File(f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg")
         try:
-            embed.set_thumbnail(url=f"attachment://thumbnail_cache/{imageid}.jpg")
+            embed.set_thumbnail(url=f"attachment://{imageid}.jpg")
         except:
             pass
         # Send the embed message to the game channel
-        await init.GAME_CHANNEL.send(embed=embed, view=view)
+        await init.GAME_CHANNEL.send(file=ifile, embed=embed, view=view)
         # Create a new embed message for the players
         player_embed = discord.Embed(title="Your game is ready! The server may take a minute before switching maps, please be patient.", color=0x00ff00)
         player_embed.add_field(name="Map", value=map_list[0], inline=False)
         player_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
         player_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
         player_embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
+        ifile = discord.File(f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg")
         try:
-            player_embed.set_thumbnail(url=f'attachment://thumbnail_cache/{imageid}.jpg')
+            player_embed.set_thumbnail(url=f"attachment://{imageid}.jpg")
         except:
             pass
         # Get the role object for "Match Notifications"
@@ -225,7 +227,7 @@ async def start_map_ban(ctx):
         # Send the embed message to each player with the "Match Notifications" role
         for player in players_with_role:
             try:
-                await player.send(embed=player_embed, view=view)
+                await player.send(file=ifile, embed=player_embed, view=view)
             except Exception as e:
                 print(f"Couldn't send message to {player.name}: {e}")
         # Create a valve rcon connection to the counterstrike server

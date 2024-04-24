@@ -44,6 +44,7 @@ MAPS.read(config_file)
 CATEGORIES = None
 MAP_IDS = None
 QUEUEPOP_MP3 = "configs/baad.mp3"
+CLEAR_ON_STARTUP = bool(os.getenv('CLEARCHANNEL_ON_STARTUP', False))
 
 def format_username(username):
     return username.replace("_", "\_")
@@ -56,18 +57,31 @@ def set_map_config():
         for map_name, map_id in MAPS.items(category):
             MAP_IDS[map_name] = map_id
 
+
+async def clear_queuechannel():
+    try:
+        if QUEUE_CHANNEL.type == discord.ChannelType.text:  # Check if the channel is a text channel
+            await test.purge(limit=None, check=lambda msg: not msg.pinned)
+            print("Channel Clear Success")
+    except:
+        print("Channel Clear failed!")
 # Event
 @bot.event
 async def on_ready():
-    global BAN_CHANNEL, PICK_CHANNEL, QUEUE_CHANNEL, GAME_CHANNEL, VOICE_CHANNEL
+    global BAN_CHANNEL, PICK_CHANNEL, QUEUE_CHANNEL, GAME_CHANNEL, VOICE_CHANNEL, GUILD_ID
     BAN_CHANNEL = bot.get_channel(int(os.getenv("BAN_CHANNEL")))
     PICK_CHANNEL = bot.get_channel(int(os.getenv("PICK_CHANNEL")))
     QUEUE_CHANNEL = bot.get_channel(int(os.getenv("QUEUE_CHANNEL")))
     GAME_CHANNEL = bot.get_channel(int(os.getenv("GAMELOG_CHANNEL")))
     VOICE_CHANNEL = bot.get_channel(int(os.getenv("VOICE_CHANNEL")))
+    GUILD_ID = bot.get_channel(int(os.getenv("GUILD_ID")))
     print(f"Bot is ready and logged in as {bot.user}!")
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
+        if CLEAR_ON_STARTUP:
+            await clear_queuechannel()
+        
     except Exception as e:
         print(e)
+
