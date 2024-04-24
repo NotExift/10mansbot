@@ -24,6 +24,16 @@ QUEUE_CHANNEL = None
 GAME_CHANNEL = None
 VOICE_CHANNEL = None
 
+#SQL Variables
+SQLHOST = os.getenv("SQLHOST")
+SQLUSER = os.getenv("SQLUSER")
+SQLPORT= os.getenv("SQLPORT")
+SQLUSERPASSWORD = os.getenv("SQLUSERPASS")
+
+#APIKEYS
+STEAMAPIKEY = os.getenv("STEAMAPIKEY")
+FACEITAPIKEY = os.getenv("FACEITAPIKEY")
+
 # Queue Variables
 QUEUE = []
 QUEUE_MSG = None
