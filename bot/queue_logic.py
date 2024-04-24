@@ -17,6 +17,18 @@ class joinQueueButton(Button):
             init.QUEUE.append(interaction.user)
             await interaction.followup.send("You have joined the queue!", ephemeral=True)
 
+class leaveQueueButton(Button):
+    def __init__(self):
+        super().__init__(label="Leave Queue", style=discord.ButtonStyle.red)
+
+    async def callback(self, interaction):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user in init.QUEUE:
+            init.QUEUE.remove(interaction.user)
+            await interaction.followup.send("You have been removed from the queue!", ephemeral=True)
+        else:
+            await interaction.followup.send("You are cannot leave a queue you aren't in.", ephermeral=True)
+
 class acceptMatchButton(Button):
     def __init__(self):
         super().__init__(label="Accept Match", style=discord.ButtonStyle.red)
@@ -35,6 +47,7 @@ async def display_queue(ctx):
     previous_queue = []
     join_queue_view = View()
     join_queue_view.add_item(joinQueueButton())
+    join_queue_view.add_itme(leaveQueueButton())
     init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=discord.Embed(title="Queue now open", color=0x00ff00), view=join_queue_view)
 
     queue_lock = asyncio.Lock()
@@ -66,11 +79,11 @@ async def display_queue(ctx):
                 accept_match_view = View()
                 accept_match_view.add_item(acceptMatchButton())
                 await init.QUEUE_MSG.edit(view=accept_match_view)
-
-                start_time = time.time()
                 await queue_pop_sound()
-
+                
+                start_time = time.time()
                 while any(player not in accepted for player in init.QUEUE) and (time.time() - start_time) < init.ACCEPT_TIME:
+                    await init.QUEUE_MSG.edit(content=f"You have {init.ACCEPT_TIME - round(time.time()-start_time)}s left to accept if you haven't already!")
                     await asyncio.sleep(1)
 
                 await init.QUEUE_MSG.edit(view=None)
