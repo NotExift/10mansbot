@@ -45,6 +45,7 @@ CATEGORIES = None
 MAP_IDS = None
 QUEUEPOP_MP3 = "configs/baad.mp3"
 CLEAR_ON_STARTUP = (os.getenv('CLEARCHANNEL_ON_STARTUP', "False"))
+GUILD_ID = (os.getenv("GUILD_ID"))
 
 def format_username(username):
     return username.replace("_", "\_")
@@ -74,7 +75,6 @@ async def on_ready():
     QUEUE_CHANNEL = bot.get_channel(int(os.getenv("QUEUE_CHANNEL")))
     GAME_CHANNEL = bot.get_channel(int(os.getenv("GAMELOG_CHANNEL")))
     VOICE_CHANNEL = bot.get_channel(int(os.getenv("VOICE_CHANNEL")))
-    GUILD_ID = bot.get_channel(int(os.getenv("GUILD_ID")))
     print(f"Bot is ready and logged in as {bot.user}!")
     try:
         synced = await bot.tree.sync()

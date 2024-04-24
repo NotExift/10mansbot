@@ -2,6 +2,7 @@ import discord
 from discord.ui import Button, View
 import time
 import asyncio
+import os
 from game_logic import start_match
 import init
 
@@ -81,7 +82,7 @@ async def display_queue(ctx):
                 await init.QUEUE_MSG.edit(view=accept_match_view)
                 popmsg = discord.Embed(
                     title="Your match has popped!",
-                    description=f"You have 30 seconds to accept!\n https://discord.com/channels/{init.GUILD_ID}/{init.QUEUE_CHANNEL}"
+                    description=f"You have 30 seconds to accept!\n https://discord.com/channels/{init.GUILD_ID}/{os.getenv("QUEUE_CHANNEL")}"
                 )
                 match_notifications_role = discord.utils.get(ctx.guild.roles, name="Match Notifications")
                 # Filter the players who have the "Match Notifications" role
