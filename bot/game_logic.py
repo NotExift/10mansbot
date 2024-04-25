@@ -35,6 +35,7 @@ class playerButton(Button):
     
     async def callback(self, interaction):
         global current_cap, player_button_menu, player_picks_embed
+        await interaction.response.defer(ephemeral=True)
 
         if interaction.user == current_cap:
             if current_cap == init.TEAM1_CAP and len(init.TEAM1) < init.TEAM_SIZE:
@@ -47,14 +48,14 @@ class playerButton(Button):
             # Remove this button from the view
             player_button_menu.remove_item(self)
 
-            player_picks_embed = player_picks_embed(player_picks_embed)
             player_picks_embed.clear_fields()
             player_picks_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
             player_picks_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
 
+            await interaction.followup.send(content=f"You have selected {self.player}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please select a player!", embed=player_picks_embed, view=player_button_menu)
         else:
-            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+            await interaction.followup.send("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
 
 async def pick_players():
     global current_cap, player_button_menu, player_picks_embed
@@ -89,6 +90,7 @@ class categoryButton(Button):
 
     async def callback(self, interaction):
         global current_cap, category_button_menu, category_embed
+        await interaction.response.defer(ephemeral=True)
 
         if interaction.user == current_cap:
             if current_cap == init.TEAM1_CAP and len(init.CATEGORIES) > 1:
@@ -103,11 +105,12 @@ class categoryButton(Button):
             category_embed.clear_fields()
             for category in init.CATEGORIES:
                 category_embed.add_field(name=category, value='\n'.join(map_name for map_name in init.MAPS[category]), inline=True)
-            category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+            category_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
+            await interaction.followup.send(content=f"You have removed {self.category_name}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please ban a category!", embed=category_embed, view=category_button_menu)
         else:
-            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+            await interaction.followup.send("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
 
 class mapButton(Button):
     def __init__(self, map_name):
@@ -116,6 +119,7 @@ class mapButton(Button):
 
     async def callback(self, interaction):
         global current_cap, map_list, map_button_menu, map_embed
+        await interaction.response.defer(ephemeral=True)
 
         if interaction.user == current_cap:
             if current_cap == init.TEAM1_CAP and len(map_list) > 1:
@@ -124,16 +128,27 @@ class mapButton(Button):
                 current_cap = init.TEAM1_CAP
 
             map_list.remove(self.map_name)
-
             map_button_menu.remove_item(self)
 
             map_embed.clear_fields()
             map_embed.add_field(name=init.CATEGORIES[0], value='\n'.join(map_name for map_name in map_list), inline=True)
-            map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+            map_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
+            await interaction.followup.send(content=f"You have removed {self.map_name}!", ephemeral=True)
             await interaction.message.edit(content=f"{current_cap.mention} please ban a map!", embed=map_embed, view=map_button_menu)
         else:
-            await interaction.response.send_message("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+            await interaction.followup.send("It is either not your turn, or you are not allowed to make a selection.", ephemeral=True)
+
+class copyIPButton(Button):
+    def __init__(self):
+        super().__init__(label="Copy: connect IP", style=discord.ButtonStyle.gray)
+
+    async def callback(self, interaction):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user in init.TEAM1 or interaction.user in init.TEAM2:
+            await interaction.followup.send(f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk", ephemeral=True)
+        else:
+            await interaction.followup.send("You are not in this match.", ephemeral=True)
 
 async def start_map_ban(ctx):
     global current_cap, map_list, category_button_menu, category_embed, map_button_menu, map_embed
@@ -147,7 +162,7 @@ async def start_map_ban(ctx):
     category_embed = discord.Embed(title="Category Veto", color=0x00ff00)
     for category in init.CATEGORIES:
         category_embed.add_field(name=category, value='\n'.join(map_name for map_name in init.MAPS[category]), inline=True)
-    category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+    category_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
     veto_msg = await init.BAN_CHANNEL.send(content=f"{current_cap.mention}, please ban a category!", embed=category_embed, view=category_button_menu)
     while len(init.CATEGORIES) > 1:
@@ -163,7 +178,7 @@ async def start_map_ban(ctx):
 
     map_embed = discord.Embed(title="Map Veto", color=0x00ff00)
     map_embed.add_field(name=init.CATEGORIES[0], value='\n'.join(map_name for map_name in map_list), inline=True)
-    map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+    map_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
     await veto_msg.edit(content=f"{current_cap.mention}, please ban a map!", embed=map_embed, view=map_button_menu)
     while len(map_list) > 1:
@@ -179,20 +194,32 @@ async def start_map_ban(ctx):
         button = Button(label="Click to Join Server", style=discord.ButtonStyle.url, url="http://connect.exift.gay/")
         view = View()
         view.add_item(button)
+        view.add_item(copyIPButton())
         # Create the embed message
         embed = discord.Embed(title=f"Game: {current_date_time}", color=0x00ff00)
         embed.add_field(name="Map", value=map_list[0], inline=False)
         embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
         embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
         embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
+        imageid = init.MAP_IDS.get(map_list[0])
+        ifile = discord.File(f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg")
+        try:
+            embed.set_thumbnail(url=f"attachment://{imageid}.jpg")
+        except:
+            pass
         # Send the embed message to the game channel
-        await init.GAME_CHANNEL.send(embed=embed, view=view)
+        await init.GAME_CHANNEL.send(file=ifile, embed=embed, view=view)
         # Create a new embed message for the players
         player_embed = discord.Embed(title="Your game is ready! The server may take a minute before switching maps, please be patient.", color=0x00ff00)
         player_embed.add_field(name="Map", value=map_list[0], inline=False)
         player_embed.add_field(name="Team 1", value='\n'.join([f'<@{user.id}>' for user in init.TEAM1]), inline=True)
         player_embed.add_field(name="Team 2", value='\n'.join([f'<@{user.id}>' for user in init.TEAM2]), inline=True)
         player_embed.set_footer(text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk")
+        ifile = discord.File(f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg")
+        try:
+            player_embed.set_thumbnail(url=f"attachment://{imageid}.jpg")
+        except:
+            pass
         # Get the role object for "Match Notifications"
         match_notifications_role = discord.utils.get(ctx.guild.roles, name="Match Notifications")
         # Filter the players who have the "Match Notifications" role
@@ -200,7 +227,7 @@ async def start_map_ban(ctx):
         # Send the embed message to each player with the "Match Notifications" role
         for player in players_with_role:
             try:
-                await player.send(embed=player_embed, view=view)
+                await player.send(file=ifile, embed=player_embed, view=view)
             except Exception as e:
                 print(f"Couldn't send message to {player.name}: {e}")
         # Create a valve rcon connection to the counterstrike server
