@@ -36,19 +36,23 @@ TEAM1 = None
 TEAM2 = None
 
 # Config Variables
-MAX_CONFIG_FILES = int(os.getenv('MAX_CONFIG_FILES', '5')) #max amount of configs this instance of the bot can have at once
-CONFIG_DIRECTORY = os.getenv('CONFIG_DIRECTORY', './configs')
-config_file = "configs/maps.cfg" #default config file
+MAX_CONFIG_FILES = int(
+    os.getenv("MAX_CONFIG_FILES", "5")
+)  # max amount of configs this instance of the bot can have at once
+CONFIG_DIRECTORY = os.getenv("CONFIG_DIRECTORY", "./configs")
+config_file = "configs/maps.cfg"  # default config file
 MAPS = configparser.ConfigParser()
 MAPS.read(config_file)
 CATEGORIES = None
 MAP_IDS = None
 QUEUEPOP_MP3 = "configs/baad.mp3"
-CLEAR_ON_STARTUP = (os.getenv('CLEARCHANNEL_ON_STARTUP', "False"))
-GUILD_ID = (os.getenv("GUILD_ID"))
+CLEAR_ON_STARTUP = os.getenv("CLEARCHANNEL_ON_STARTUP", "False")
+GUILD_ID = os.getenv("GUILD_ID")
+
 
 def format_username(username):
     return username.replace("_", "\_")
+
 
 def set_map_config():
     global CATEGORIES, MAP_IDS
@@ -61,11 +65,15 @@ def set_map_config():
 
 async def clear_queuechannel():
     try:
-        if QUEUE_CHANNEL.type == discord.ChannelType.text:  # Check if the channel is a text channel
+        if (
+            QUEUE_CHANNEL.type == discord.ChannelType.text
+        ):  # Check if the channel is a text channel
             await test.purge(limit=None, check=lambda msg: not msg.pinned)
             print("Channel Clear Success")
     except:
         print("Channel Clear failed!")
+
+
 # Event
 @bot.event
 async def on_ready():
@@ -82,5 +90,4 @@ async def on_ready():
     except Exception as e:
         print(e)
     if CLEAR_ON_STARTUP == "True":
-            await clear_queuechannel()
-
+        await clear_queuechannel()
