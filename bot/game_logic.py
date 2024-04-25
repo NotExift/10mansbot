@@ -247,12 +247,16 @@ async def start_map_ban(ctx):
             value="\n".join(map_name for map_name in init.MAPS[category]),
             inline=True,
         )
-    category_embed.set_image(url="attachment://bot/mapsimage.jpg")
+    mfile = discord.File(
+        f"bot/mapsimage.jpg", filename=f"mapsimage.jpg"
+    )
+    category_embed.set_image(url="attachment://mapsimage.jpg")
 
     veto_msg = await init.BAN_CHANNEL.send(
         content=f"{current_cap.mention}, please ban a category!",
         embed=category_embed,
         view=category_button_menu,
+        file=mfile
     )
     while len(init.CATEGORIES) > 1:
         if not init.GAME_ONGOING:
@@ -271,8 +275,6 @@ async def start_map_ban(ctx):
         value="\n".join(map_name for map_name in map_list),
         inline=True,
     )
-    map_embed.set_image(url="attachment://bot/mapsimage.jpg")
-
     await veto_msg.edit(
         content=f"{current_cap.mention}, please ban a map!",
         embed=map_embed,
