@@ -2,6 +2,7 @@ import discord
 from discord.ui import Button, View
 import time
 import asyncio
+import os
 from game_logic import start_match
 import init
 
@@ -63,7 +64,7 @@ async def display_queue(ctx):
     previous_queue = []
     join_queue_view = View()
     join_queue_view.add_item(joinQueueButton())
-    join_queue_view.add_itme(leaveQueueButton())
+    join_queue_view.add_item(leaveQueueButton())
     init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(
         embed=discord.Embed(title="Queue now open", color=0x00FF00),
         view=join_queue_view,
@@ -106,8 +107,27 @@ async def display_queue(ctx):
                 accept_match_view = View()
                 accept_match_view.add_item(acceptMatchButton())
                 await init.QUEUE_MSG.edit(view=accept_match_view)
+                qchan = os.getenv("QUEUE_CHANNEL")
+                popmsg = discord.Embed(
+                    title="Your match has popped!",
+                    description=f"You have 30 seconds to accept!\n https://discord.com/channels/{init.GUILD_ID}/{qchan}",
+                )
+                match_notifications_role = discord.utils.get(
+                    ctx.guild.roles, name="Match Notifications"
+                )
+                # Filter the players who have the "Match Notifications" role
+                players_with_role = [
+                    player
+                    for player in init.QUEUE
+                    if match_notifications_role in player.roles
+                ]
+                # Send the embed message to each player with the "Match Notifications" role
+                for player in players_with_role:
+                    try:
+                        await player.send(embed=popmsg, view=accept_match_view)
+                    except Exception as e:
+                        print(f"Couldn't send message to {player.name}: {e}")
                 await queue_pop_sound()
-
                 start_time = time.time()
                 while (
                     any(player not in accepted for player in init.QUEUE)

@@ -63,7 +63,6 @@ class playerButton(Button):
             # Remove this button from the view
             player_button_menu.remove_item(self)
 
-            player_picks_embed = player_picks_embed(player_picks_embed)
             player_picks_embed.clear_fields()
             player_picks_embed.add_field(
                 name="Team 1",
@@ -157,7 +156,7 @@ class categoryButton(Button):
                     value="\n".join(map_name for map_name in init.MAPS[category]),
                     inline=True,
                 )
-            category_embed.set_image(file="bot/mapsimage.jpg")
+            category_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
             await interaction.followup.send(
                 content=f"You have removed {self.category_name}!", ephemeral=True
@@ -198,7 +197,7 @@ class mapButton(Button):
                 value="\n".join(map_name for map_name in map_list),
                 inline=True,
             )
-            map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+            map_embed.set_image(url="attachment://bot/mapsimage.jpg")
 
             await interaction.followup.send(
                 content=f"You have removed {self.map_name}!", ephemeral=True
@@ -248,12 +247,16 @@ async def start_map_ban(ctx):
             value="\n".join(map_name for map_name in init.MAPS[category]),
             inline=True,
         )
-    category_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
+    mfile = discord.File(
+        f"bot/mapsimage.jpg", filename=f"mapsimage.jpg"
+    )
+    category_embed.set_image(url="attachment://mapsimage.jpg")
 
     veto_msg = await init.BAN_CHANNEL.send(
         content=f"{current_cap.mention}, please ban a category!",
         embed=category_embed,
         view=category_button_menu,
+        file=mfile
     )
     while len(init.CATEGORIES) > 1:
         if not init.GAME_ONGOING:
@@ -272,8 +275,6 @@ async def start_map_ban(ctx):
         value="\n".join(map_name for map_name in map_list),
         inline=True,
     )
-    map_embed.set_image(url="https://i.imgur.com/uo4ypUX.png")
-
     await veto_msg.edit(
         content=f"{current_cap.mention}, please ban a map!",
         embed=map_embed,
@@ -316,12 +317,15 @@ async def start_map_ban(ctx):
             text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk"
         )
         imageid = init.MAP_IDS.get(map_list[0])
+        ifile = discord.File(
+            f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg"
+        )
         try:
-            embed.set_thumbnail(url=f"attachment://thumbnail_cache/{imageid}.jpg")
+            embed.set_thumbnail(url=f"attachment://{imageid}.jpg")
         except:
             pass
         # Send the embed message to the game channel
-        await init.GAME_CHANNEL.send(embed=embed, view=view)
+        await init.GAME_CHANNEL.send(file=ifile, embed=embed, view=view)
         # Create a new embed message for the players
         player_embed = discord.Embed(
             title="Your game is ready! The server may take a minute before switching maps, please be patient.",
@@ -341,10 +345,11 @@ async def start_map_ban(ctx):
         player_embed.set_footer(
             text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk"
         )
+        ifile = discord.File(
+            f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg"
+        )
         try:
-            player_embed.set_thumbnail(
-                url=f"attachment://thumbnail_cache/{imageid}.jpg"
-            )
+            player_embed.set_thumbnail(url=f"attachment://{imageid}.jpg")
         except:
             pass
         # Get the role object for "Match Notifications"
@@ -360,7 +365,7 @@ async def start_map_ban(ctx):
         # Send the embed message to each player with the "Match Notifications" role
         for player in players_with_role:
             try:
-                await player.send(embed=player_embed, view=view)
+                await player.send(file=ifile, embed=player_embed, view=view)
             except Exception as e:
                 print(f"Couldn't send message to {player.name}: {e}")
         # Create a valve rcon connection to the counterstrike server

@@ -46,9 +46,9 @@ def create_aggregate_image(sections, cache_dir, output_path):
     draw = ImageDraw.Draw(composite_image)
 
     try:
-        section_font = ImageFont.truetype("comicbd.ttf", 24)
-        label_font = ImageFont.truetype("comic.ttf", 18)
-        title_font = ImageFont.truetype("comicbd.ttf", 36)
+        section_font = ImageFont.truetype("configs/comicbd.ttf", 24)
+        label_font = ImageFont.truetype("configs/comic.ttf", 18)
+        title_font = ImageFont.truetype("configs/comicbd.ttf", 36)
     except IOError:
         section_font = ImageFont.load_default()
         label_font = ImageFont.load_default()
