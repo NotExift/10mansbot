@@ -65,13 +65,11 @@ def set_map_config():
 
 async def clear_queuechannel():
     try:
-        if (
-            QUEUE_CHANNEL.type == discord.ChannelType.text
-        ):  # Check if the channel is a text channel
-            await test.purge(limit=None, check=lambda msg: not msg.pinned)
-            print("Channel Clear Success")
+        async for message in QUEUE_CHANNEL.history(limit=None):
+            await message.delete()
+        print("Queue channel successfully cleared!")
     except:
-        print("Channel Clear failed!")
+        print("Queue channel clear failed!")
 
 
 # Event
@@ -89,5 +87,5 @@ async def on_ready():
         print(f"Synced {len(synced)} command(s)")
     except Exception as e:
         print(e)
-    if CLEAR_ON_STARTUP == "True":
+    if CLEAR_ON_STARTUP == "True" and QUEUE_CHANNEL:
         await clear_queuechannel()

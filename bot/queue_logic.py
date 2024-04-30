@@ -176,6 +176,8 @@ async def queue_pop(ctx):
     await init.QUEUE_MSG.edit(view=None)
 
     if all(player in accepted for player in init.QUEUE):
+        if init.QUEUE_MSG:
+            await init.QUEUE_MSG.delete()
         await start_match(ctx)
     else:
         init.QUEUE[:] = [
