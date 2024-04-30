@@ -62,7 +62,7 @@ class acceptMatchButton(Button):
 
 async def display_queue(ctx):
     previous_queue = []
-    join_queue_view = View()
+    join_queue_view = View(timeout=None)
     join_queue_view.add_item(joinQueueButton())
     join_queue_view.add_item(leaveQueueButton())
     init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(
