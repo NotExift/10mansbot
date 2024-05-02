@@ -23,12 +23,12 @@ async def start_match(ctx):
     )  # Captains pick players in pick_channel
     embed = discord.Embed(title="Game Ongoing", color=0x00FF00)
     embed.add_field(
-        name="Team 1", value="\n".join([user.name for user in init.TEAM1]), inline=True
+        name="👥 Team 1", value="\n".join([user.name for user in init.TEAM1]), inline=True
     )
     embed.add_field(
-        name="Team 2", value="\n".join([user.name for user in init.TEAM2]), inline=True
+        name="👥 Team 2", value="\n".join([user.name for user in init.TEAM2]), inline=True
     )
-    embed.set_footer(text=f"Captains: {init.TEAM1_CAP.name}, {init.TEAM2_CAP.name}")
+    embed.set_footer(text=f"🧢 Captains: {init.TEAM1_CAP.name}, {init.TEAM2_CAP.name}")
     if init.QUEUE_MSG:  # If there is a previous message, delete it
         await init.QUEUE_MSG.delete()
     init.QUEUE_MSG = await init.QUEUE_CHANNEL.send(embed=embed)
@@ -65,12 +65,12 @@ class playerButton(Button):
 
             player_picks_embed.clear_fields()
             player_picks_embed.add_field(
-                name="Team 1",
+                name="👥 Team 1",
                 value="\n".join([f"<@{user.id}>" for user in init.TEAM1]),
                 inline=True,
             )
             player_picks_embed.add_field(
-                name="Team 2",
+                name="👥 Team 2",
                 value="\n".join([f"<@{user.id}>" for user in init.TEAM2]),
                 inline=True,
             )
@@ -103,12 +103,12 @@ async def pick_players():
 
     player_picks_embed = discord.Embed(title="Player Picks", color=0x00FF00)
     player_picks_embed.add_field(
-        name="Team 1",
+        name="👥 Team 1",
         value="\n".join([f"<@{user.id}>" for user in init.TEAM1]),
         inline=True,
     )
     player_picks_embed.add_field(
-        name="Team 2",
+        name="👥 Team 2",
         value="\n".join([f"<@{user.id}>" for user in init.TEAM2]),
         inline=True,
     )
@@ -304,12 +304,12 @@ async def start_map_ban(ctx):
         embed = discord.Embed(title=f"Game: {current_date_time}", color=0x00FF00)
         embed.add_field(name="Map", value=map_list[0], inline=False)
         embed.add_field(
-            name="Team 1",
+            name="👥 Team 1",
             value="\n".join([f"<@{user.id}>" for user in init.TEAM1]),
             inline=True,
         )
         embed.add_field(
-            name="Team 2",
+            name="👥 Team 2",
             value="\n".join([f"<@{user.id}>" for user in init.TEAM2]),
             inline=True,
         )
@@ -333,12 +333,12 @@ async def start_map_ban(ctx):
         )
         player_embed.add_field(name="Map", value=map_list[0], inline=False)
         player_embed.add_field(
-            name="Team 1",
+            name="👥 Team 1",
             value="\n".join([f"<@{user.id}>" for user in init.TEAM1]),
             inline=True,
         )
         player_embed.add_field(
-            name="Team 2",
+            name="👥 Team 2",
             value="\n".join([f"<@{user.id}>" for user in init.TEAM2]),
             inline=True,
         )
