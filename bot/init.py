@@ -25,10 +25,10 @@ GAME_CHANNEL = None
 VOICE_CHANNEL = None
 
 # SQL Variables
-SQLHOST = os.getenv("SQLHOST")
-SQLUSER = os.getenv("SQLUSER")
-SQLPORT = os.getenv("SQLPORT")
-SQLUSERPASSWORD = os.getenv("SQLUSERPASS")
+SQLHOST = os.getenv("SQLHOST", "localhost")
+SQLUSER = os.getenv("SQLUSER", "10mansbot")
+SQLPORT = os.getenv("SQLPORT", "3306")
+SQLUSERPASSWORD = os.getenv("SQLUSERPASS", "password3")
 
 # APIKEYS
 STEAMAPIKEY = os.getenv("STEAMAPIKEY")
