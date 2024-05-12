@@ -119,17 +119,22 @@ async def queue_pop(ctx):
 
     # Permissions setup
     overwrites = {
-        ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False), # Deny access to everyone
-        ctx.guild.me: discord.PermissionOverwrite(read_messages=True) # Ensure bot has access
+        ctx.guild.default_role: discord.PermissionOverwrite(
+            read_messages=False
+        ),  # Deny access to everyone
+        ctx.guild.me: discord.PermissionOverwrite(
+            read_messages=True
+        ),  # Ensure bot has access
     }
 
     for user in init.QUEUE:
-        overwrites[user] = discord.PermissionOverwrite(read_messages=True) # Allow users in init.QUEUE access
+        overwrites[user] = discord.PermissionOverwrite(
+            read_messages=True
+        )  # Allow users in init.QUEUE access
 
     # Create private channel with overwrites
     init.MATCHROOM_CHANNEL = await ctx.guild.create_text_channel(
-        name=f"matchroom-{init.MATCH_ID}",
-        overwrites=overwrites
+        name=f"matchroom-{init.MATCH_ID}", overwrites=overwrites
     )
     init.MATCH_ID += 1
 
@@ -145,10 +150,10 @@ async def queue_pop(ctx):
     )
     readyup_msg = await init.MATCHROOM_CHANNEL.send(
         content=f"0/{init.PLAYER_COUNT} players are ready. \nReady up before <t:{int(unix_timestamp)}:t>",
-        embed = initial_embed,
-        view=accept_match_view
+        embed=initial_embed,
+        view=accept_match_view,
     )
-    
+
     # Match Notifications PM
     p_pop_msg = discord.Embed(
         title="Your match has popped!",
@@ -159,9 +164,7 @@ async def queue_pop(ctx):
     )
     # Filter the players who have the "Match Notifications" role
     players_with_role = [
-        player
-        for player in init.QUEUE
-        if match_notifications_role in player.roles
+        player for player in init.QUEUE if match_notifications_role in player.roles
     ]
     # Send the embed message to each player with the "Match Notifications" role
     for player in players_with_role:
@@ -169,7 +172,7 @@ async def queue_pop(ctx):
             await player.send(embed=p_pop_msg, view=accept_match_view)
         except Exception as e:
             print(f"Couldn't send message to {player.name}: {e}")
-    
+
     await queue_pop_sound()
     start_time = time.time()
     while (
@@ -185,14 +188,14 @@ async def queue_pop(ctx):
         await update_readyup_msg(accepted, init.PLAYER_COUNT, unix_timestamp)
         await start_match(ctx)
     else:
-        init.QUEUE[:] = [
-            player for player in init.QUEUE if player in accepted
-        ]
+        init.QUEUE[:] = [player for player in init.QUEUE if player in accepted]
         try:
             await init.MATCHROOM_CHANNEL.delete()
             print(f"Channel matchroom-{init.MATCH_ID} was deleted successfully!")
         except Exception as e:
-            print(f"An error occurred: {e}\nChannel matchroom-{init.MATCH_ID} failed to be deleted!")
+            print(
+                f"An error occurred: {e}\nChannel matchroom-{init.MATCH_ID} failed to be deleted!"
+            )
 
 
 async def queue_pop_sound():
@@ -213,9 +216,7 @@ async def update_readyup_msg(accepted_users, total_users, unix_timestamp):
         participants_field.append(f"{status}<@{user.id}>")
 
     embed.add_field(
-        name="👥 Participants",
-        value="\n".join(participants_field),
-        inline=True
+        name="👥 Participants", value="\n".join(participants_field), inline=True
     )
 
     if len(accepted_users) == total_users:
@@ -223,7 +224,4 @@ async def update_readyup_msg(accepted_users, total_users, unix_timestamp):
     else:
         content = f"{len(accepted_users)}/{total_users} players are ready. \nReady up before <t:{unix_timestamp}:t>"
 
-    await readyup_msg.edit(
-        content=content,
-        embed=embed
-    )
+    await readyup_msg.edit(content=content, embed=embed)

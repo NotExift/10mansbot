@@ -20,10 +20,14 @@ async def start_match(ctx):
     )  # Captains pick players in pick_channel
     embed = discord.Embed(title="Game Ongoing", color=0x00FF00)
     embed.add_field(
-        name="👥 Team 1", value="\n".join([user.name for user in init.TEAM1]), inline=True
+        name="👥 Team 1",
+        value="\n".join([user.name for user in init.TEAM1]),
+        inline=True,
     )
     embed.add_field(
-        name="👥 Team 2", value="\n".join([user.name for user in init.TEAM2]), inline=True
+        name="👥 Team 2",
+        value="\n".join([user.name for user in init.TEAM2]),
+        inline=True,
     )
     embed.set_footer(text=f"🧢 Captains: {init.TEAM1_CAP.name}, {init.TEAM2_CAP.name}")
     if init.QUEUE_MSG:  # If there is a previous message, delete it
@@ -234,7 +238,9 @@ class endgameButton(Button):
 
     async def callback(self, interaction):
         await interaction.response.defer(ephemeral=True)
-        if interaction.user in [init.TEAM1_CAP, init.TEAM2_CAP] or "Admin" in [role.name for role in interaction.user.roles]:
+        if interaction.user in [init.TEAM1_CAP, init.TEAM2_CAP] or "Admin" in [
+            role.name for role in interaction.user.roles
+        ]:
             init.GAME_ONGOING = False
             init.QUEUE.clear()
             init.TEAM1.clear()
@@ -244,10 +250,13 @@ class endgameButton(Button):
                 await interaction.channel.delete()
                 print(f"Channel matchroom-{init.MATCH_ID} was deleted successfully!")
             except Exception as e:
-                print(f"An error occurred: {e}\nChannel matchroom-{init.MATCH_ID} failed to be deleted!")
+                print(
+                    f"An error occurred: {e}\nChannel matchroom-{init.MATCH_ID} failed to be deleted!"
+                )
         else:
-            await interaction.followup.send("You do not have the permissions to end the game.", ephemeral=True)
-
+            await interaction.followup.send(
+                "You do not have the permissions to end the game.", ephemeral=True
+            )
 
 
 async def start_map_ban(ctx):
@@ -266,16 +275,14 @@ async def start_map_ban(ctx):
             value="\n".join(map_name for map_name in init.MAPS[category]),
             inline=True,
         )
-    mfile = discord.File(
-        f"bot/mapsimage.jpg", filename=f"mapsimage.jpg"
-    )
+    mfile = discord.File(f"bot/mapsimage.jpg", filename=f"mapsimage.jpg")
     category_embed.set_image(url="attachment://mapsimage.jpg")
 
     veto_msg = await init.MATCHROOM_CHANNEL.send(
         content=f"{current_cap.mention}, please ban a category!",
         embed=category_embed,
         view=category_button_menu,
-        file=mfile
+        file=mfile,
     )
     while len(init.CATEGORIES) > 1:
         if not init.GAME_ONGOING:
@@ -350,10 +357,10 @@ async def start_map_ban(ctx):
             f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg"
         )
         await init.MATCHROOM_CHANNEL.send(
-            content=f"The final map is: {map_list[0]}\n Reminder that one of the captains click \"endgame\" whenever the match concludes to reopen the queue!",
+            content=f'The final map is: {map_list[0]}\n Reminder that one of the captains click "endgame" whenever the match concludes to reopen the queue!',
             file=ifile_matchroom,
             embed=embed,
-            view=view
+            view=view,
         )
 
         # Create a new embed message for the players
@@ -394,7 +401,9 @@ async def start_map_ban(ctx):
         ]
         # Send the embed message to each player with the "Match Notifications" role
         for player in players_with_role:
-            ifile_player = discord.File(f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg")
+            ifile_player = discord.File(
+                f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg"
+            )
             try:
                 await player.send(file=ifile_player, embed=player_embed, view=view)
             except Exception as e:
