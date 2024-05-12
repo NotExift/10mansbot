@@ -233,7 +233,6 @@ class endgameButton(Button):
         super().__init__(label="End Game", style=discord.ButtonStyle.red)
 
     async def callback(self, interaction):
-        global gamelog_msg
         await interaction.response.defer(ephemeral=True)
         if interaction.user in [init.TEAM1_CAP, init.TEAM2_CAP] or "Admin" in [role.name for role in interaction.user.roles]:
             init.GAME_ONGOING = False
@@ -244,10 +243,10 @@ class endgameButton(Button):
             try:
                 await interaction.channel.delete()
                 print(f"Channel matchroom-{init.MATCH_ID} was deleted successfully!")
-            except:
-                print(f"Channel matchroom-{init.MATCH_ID} was not found and failed to be deleted!")
+            except Exception as e:
+                print(f"An error occurred: {e}\nChannel matchroom-{init.MATCH_ID} failed to be deleted!")
         else:
-            interaction.followup.send("You do not have the permissions to end the game.", ephemeral=True)
+            await interaction.followup.send("You do not have the permissions to end the game.", ephemeral=True)
 
 
 
@@ -335,21 +334,28 @@ async def start_map_ban(ctx):
             text=f"connect {init.SERVER_IP}:{init.SERVER_PORT}; password okkkkkkk"
         )
         imageid = init.MAP_IDS.get(map_list[0])
-        ifile = discord.File(
-            f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg"
-        )
         try:
             embed.set_thumbnail(url=f"attachment://{imageid}.jpg")
         except:
             pass
-        # Send the embed message to the game channel
+
+        # Send the info message to the game_log channel
+        ifile_game = discord.File(
+            f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg"
+        )
+        await init.GAME_CHANNEL.send(file=ifile_game, embed=embed)
+
+        # Send the info message to the matchroom channel
+        ifile_matchroom = discord.File(
+            f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg"
+        )
         await init.MATCHROOM_CHANNEL.send(
             content=f"The final map is: {map_list[0]}\n Reminder that one of the captains click \"endgame\" whenever the match concludes to reopen the queue!",
-            file=ifile,
+            file=ifile_matchroom,
             embed=embed,
             view=view
         )
-        await init.GAME_CHANNEL.send(file=ifile, embed=embed)
+
         # Create a new embed message for the players
         player_embed = discord.Embed(
             title="Your game is ready! The server may take a minute before switching maps, please be patient.",
@@ -388,8 +394,9 @@ async def start_map_ban(ctx):
         ]
         # Send the embed message to each player with the "Match Notifications" role
         for player in players_with_role:
+            ifile_player = discord.File(f"bot/thumbnail_cache/{imageid}.jpg", filename=f"{imageid}.jpg")
             try:
-                await player.send(file=ifile, embed=player_embed, view=view)
+                await player.send(file=ifile_player, embed=player_embed, view=view)
             except Exception as e:
                 print(f"Couldn't send message to {player.name}: {e}")
         # Create a valve rcon connection to the counterstrike server

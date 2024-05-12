@@ -109,7 +109,7 @@ async def display_queue(ctx):
 
 
 async def queue_pop(ctx):
-    global accepted
+    global accepted, readyup_msg
     accepted = []
     accept_match_view = View()
     accept_match_view.add_item(acceptMatchButton())
@@ -117,19 +117,37 @@ async def queue_pop(ctx):
     future_time = datetime.now(timezone.utc) + timedelta(seconds=init.ACCEPT_TIME)
     unix_timestamp = int(future_time.timestamp())
 
-    accept_match_embed = discord.Embed(title="Match Accept", color=0x00FF00)
+    # Permissions setup
+    overwrites = {
+        ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False), # Deny access to everyone
+        ctx.guild.me: discord.PermissionOverwrite(read_messages=True) # Ensure bot has access
+    }
+
+    for user in init.QUEUE:
+        overwrites[user] = discord.PermissionOverwrite(read_messages=True) # Allow users in init.QUEUE access
+
+    # Create private channel with overwrites
+    init.MATCHROOM_CHANNEL = await ctx.guild.create_text_channel(
+        name=f"matchroom-{init.MATCH_ID}",
+        overwrites=overwrites
+    )
+    init.MATCH_ID += 1
+
+    # Sending initial readyup_msg
+    initial_embed = discord.Embed(title="Match Accept", color=0x00FF00)
     participants_field = []
     for user in init.QUEUE:
         participants_field.append(f"❌<@{user.id}>")
-    accept_match_embed.add_field(
+    initial_embed.add_field(
         name="👥 Participants",
         value="\n".join(participants_field),
         inline=True,
     )
-    
-    init.MATCHROOM_CHANNEL = await Guild.create_text_channel(name=f"matchroom-{init.MATCH_ID}")
-    init.MATCH_ID += 1
-    matchroom_msg = await init.MATCHROOM_CHANNEL.send(content=f"0/{init.PLAYER_COUNT} players are ready. \nReady up before <t:{int(unix_timestamp)}:t>", embed = accept_match_embed, view=accept_match_view)
+    readyup_msg = await init.MATCHROOM_CHANNEL.send(
+        content=f"0/{init.PLAYER_COUNT} players are ready. \nReady up before <t:{int(unix_timestamp)}:t>",
+        embed = initial_embed,
+        view=accept_match_view
+    )
     
     # Match Notifications PM
     p_pop_msg = discord.Embed(
@@ -158,38 +176,13 @@ async def queue_pop(ctx):
         any(player not in accepted for player in init.QUEUE)
         and (time.time() - start_time) < init.ACCEPT_TIME
     ):
-        accept_match_embed.clear_fields()
-        participants_field.clear()
-        for user in init.QUEUE:
-            if user in accepted: 
-                participants_field.append(f"✅<@{user.id}>")
-            else:
-                participants_field.append(f"❌<@{user.id}>")
-        accept_match_embed.add_field(
-            name="👥 Participants",
-            value="\n".join(participants_field),
-            inline=True,
-        )
-        await matchroom_msg.edit(
-            content=f"{len(accepted)}/{init.PLAYER_COUNT} players are ready. \nReady up before <t:{int(unix_timestamp)}:t>", 
-            embed = accept_match_embed
-        )
+        await update_readyup_msg(accepted, init.PLAYER_COUNT, unix_timestamp)
         await asyncio.sleep(1)
 
-    await matchroom_msg.edit(view=None)
+    await readyup_msg.edit(view=None)
 
     if all(player in accepted for player in init.QUEUE):
-        # Possibly make function to remove redundancy
-        accept_match_embed.clear_fields()
-        participants_field.clear()
-        for user in accepted:
-            participants_field.append(f"✅<@{user.id}>")
-        accept_match_embed.add_field(
-            name="👥 Participants",
-            value="\n".join(participants_field),
-            inline=True,
-        )
-        await matchroom_msg.edit(content=f"{len(accepted)}/{init.PLAYER_COUNT} have readied up!", embed = accept_match_embed)
+        await update_readyup_msg(accepted, init.PLAYER_COUNT, unix_timestamp)
         await start_match(ctx)
     else:
         init.QUEUE[:] = [
@@ -198,8 +191,8 @@ async def queue_pop(ctx):
         try:
             await init.MATCHROOM_CHANNEL.delete()
             print(f"Channel matchroom-{init.MATCH_ID} was deleted successfully!")
-        except:
-            print(f"Channel matchroom-{init.MATCH_ID} was not found and failed to be deleted!")
+        except Exception as e:
+            print(f"An error occurred: {e}\nChannel matchroom-{init.MATCH_ID} failed to be deleted!")
 
 
 async def queue_pop_sound():
@@ -209,3 +202,28 @@ async def queue_pop_sound():
     while v_client.is_playing():
         await asyncio.sleep(1)
     await v_client.disconnect()
+
+
+async def update_readyup_msg(accepted_users, total_users, unix_timestamp):
+    global readyup_msg
+    embed = discord.Embed(title="Match Accept", color=0x00FF00)
+    participants_field = []
+    for user in init.QUEUE:
+        status = "✅" if user in accepted_users else "❌"
+        participants_field.append(f"{status}<@{user.id}>")
+
+    embed.add_field(
+        name="👥 Participants",
+        value="\n".join(participants_field),
+        inline=True
+    )
+
+    if len(accepted_users) == total_users:
+        content = f"{len(accepted_users)}/{total_users} have readied up!"
+    else:
+        content = f"{len(accepted_users)}/{total_users} players are ready. \nReady up before <t:{unix_timestamp}:t>"
+
+    await readyup_msg.edit(
+        content=content,
+        embed=embed
+    )
