@@ -15,9 +15,6 @@ async def start_match(ctx):
         init.TEAM1_CAP, init.TEAM2_CAP = random.sample(
             init.QUEUE, 2
         )  # Select two random captains
-    captain_role = discord.utils.get(ctx.guild.roles, name="captain")
-    await init.TEAM1_CAP.add_roles(captain_role)
-    await init.TEAM2_CAP.add_roles(captain_role)
     init.TEAM1, init.TEAM2 = (
         await pick_players()
     )  # Captains pick players in pick_channel
@@ -113,7 +110,7 @@ async def pick_players():
         inline=True,
     )
 
-    picks_msg = await init.BAN_CHANNEL.send(
+    picks_msg = await init.MATCHROOM_CHANNEL.send(
         content=f"{current_cap.mention} please select a player!",
         embed=player_picks_embed,
         view=player_button_menu,
@@ -231,6 +228,29 @@ class copyIPButton(Button):
             )
 
 
+class endgameButton(Button):
+    def __init__(self):
+        super().__init__(label="End Game", style=discord.ButtonStyle.red)
+
+    async def callback(self, interaction):
+        global gamelog_msg
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user in [init.TEAM1_CAP, init.TEAM2_CAP] or "Admin" in [role.name for role in interaction.user.roles]:
+            init.GAME_ONGOING = False
+            init.QUEUE.clear()
+            init.TEAM1.clear()
+            init.TEAM2.clear()
+            await interaction.followup.send("The game has ended.", ephemeral=True)
+            try:
+                await interaction.channel.delete()
+                print(f"Channel matchroom-{init.MATCH_ID} was deleted successfully!")
+            except:
+                print(f"Channel matchroom-{init.MATCH_ID} was not found and failed to be deleted!")
+        else:
+            interaction.followup.send("You do not have the permissions to end the game.", ephemeral=True)
+
+
+
 async def start_map_ban(ctx):
     global current_cap, map_list, category_button_menu, category_embed, map_button_menu, map_embed
 
@@ -252,7 +272,7 @@ async def start_map_ban(ctx):
     )
     category_embed.set_image(url="attachment://mapsimage.jpg")
 
-    veto_msg = await init.BAN_CHANNEL.send(
+    veto_msg = await init.MATCHROOM_CHANNEL.send(
         content=f"{current_cap.mention}, please ban a category!",
         embed=category_embed,
         view=category_button_menu,
@@ -288,9 +308,6 @@ async def start_map_ban(ctx):
     await veto_msg.edit(content=None, embed=map_embed, view=None)
 
     if init.GAME_ONGOING:
-        await init.BAN_CHANNEL.send(
-            f"The final map is: {map_list[0]}\n Reminder that one of the captains should /endgame after the game is over for the queue to reopen!"
-        )
         current_date_time = datetime.datetime.now().strftime("%B %d, %Y, %H:%M:%S")
         button = Button(
             label="Click to Join Server",
@@ -300,6 +317,7 @@ async def start_map_ban(ctx):
         view = View()
         view.add_item(button)
         view.add_item(copyIPButton())
+        view.add_item(endgameButton())
         # Create the embed message
         embed = discord.Embed(title=f"Game: {current_date_time}", color=0x00FF00)
         embed.add_field(name="Map", value=map_list[0], inline=False)
@@ -325,7 +343,13 @@ async def start_map_ban(ctx):
         except:
             pass
         # Send the embed message to the game channel
-        await init.GAME_CHANNEL.send(file=ifile, embed=embed, view=view)
+        await init.MATCHROOM_CHANNEL.send(
+            content=f"The final map is: {map_list[0]}\n Reminder that one of the captains click \"endgame\" whenever the match concludes to reopen the queue!",
+            file=ifile,
+            embed=embed,
+            view=view
+        )
+        await init.GAME_CHANNEL.send(file=ifile, embed=embed)
         # Create a new embed message for the players
         player_embed = discord.Embed(
             title="Your game is ready! The server may take a minute before switching maps, please be patient.",

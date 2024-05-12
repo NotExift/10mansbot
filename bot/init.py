@@ -13,11 +13,13 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 # Global Variables
 PLAYER_COUNT = 10
 TEAM_SIZE = 5
+MATCH_ID = 0
 SERVER_IP = os.getenv("SERVER_IP")
 SERVER_PORT = os.getenv("SERVER_PORT")
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
 
 # Channel Variables
+MATCHROOM_CHANNEL = None
 BAN_CHANNEL = None
 PICK_CHANNEL = None
 QUEUE_CHANNEL = None
