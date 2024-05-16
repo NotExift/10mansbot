@@ -5,7 +5,6 @@ services:
       - SERVER_IP = "example.com"
       - SERVER_PORT = "port"
       - RCON_PASSWORD = "password"
-      - BAN_CHANNEL = "channelid"
       - PICK_CHANNEL = "channelid"
       - QUEUE_CHANNEL = "channelid"
       - GAMELOG_CHANNEL = "channelid"
