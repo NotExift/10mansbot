@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 import init
 from configsystem import *
+import queue_logic
 from queue_logic import display_queue
 from game_logic import change_map
 from imagegenerator import (
@@ -140,6 +141,23 @@ async def remove_player(ctx: discord.Interaction, name: discord.Member):
         await ctx.response.send_message(
             "No user found with that name in this server.", ephemeral=True
         )
+
+
+@init.bot.tree.command(
+    name="forcereadyall", description="Manually readies all players when match pops"
+)
+async def force_ready_all(ctx: discord.Interaction):
+    if "Admin" not in [role.name for role in ctx.user.roles]:
+        await ctx.response.send_message(
+            "You do not have permission to use this command.", ephemeral=True
+        )
+        return
+    for user in init.QUEUE:
+        if user not in queue_logic.accepted:
+            queue_logic.accepted.append(user)
+    await ctx.response.send_message(
+        "All players have been forced to be ready!", ephemeral=True
+    )
 
 
 @init.bot.tree.command(name="setcaptains", description="Manually set captains")
