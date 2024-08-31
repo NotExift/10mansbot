@@ -64,13 +64,13 @@ A Discord bot designed to queue 10 players into CS2 workshop map games, with aut
 | `/regeneratemapimage` | Regenerate the image for the map pool |
 
 ## Bot Workflow
-1. Queueing: Users click the queue button to join. The bot tracks the number of users in the queue.
-2. Match Creation: When 10 users are queued, the bot creates a private text channel for the match.
-3. Ready Check: Players must click the ready button within 60 seconds. If not, they are removed from the queue, and the match is canceled.
-4. Team Selection: Two captains are selected, and they alternate picking players by clicking buttons. If the captains do not make a selection in 20 seconds, a random player will be assigned to their team.
-5. Map Veto: Captains veto categories and maps until one map remains. Again, if the captains do not make a selection in 20 seconds a random category/map will be selected to be removed.
-6. Server Launch: The bot starts the server with the chosen map and sends the IP to the private text channel.
-7. Match End: After the game, an admin or captain ends the match, in which the bot will shut down the server and log the results in the games-log channel.
+1. **Queueing**: Users click the queue button to join. The bot tracks the number of users in the queue.
+2. **Match Creation**: When 10 users are queued, the bot creates a private text channel for the match.
+3. **Ready Check**: Players must click the ready button within 60 seconds. If not, they are removed from the queue, and the match is canceled.
+4. **Team Selection**: Two captains are selected, and they alternate picking players by clicking buttons. If the captains do not make a selection in 20 seconds, a random player will be assigned to their team.
+5. **Map Veto**: Captains veto categories and maps until one map remains. Again, if the captains do not make a selection in 20 seconds a random category/map will be selected to be removed.
+6. **Server Launch**: The bot starts the server with the chosen map and sends the IP to the private text channel.
+7. **Match End**: After the game, an admin or captain ends the match, in which the bot will shut down the server and log the results in the games-log channel.
 
 ## Visual Guide
 *Insert image workflow here*
