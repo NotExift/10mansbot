@@ -173,7 +173,7 @@ async def queue_pop(ctx):
         except Exception as e:
             print(f"Couldn't send message to {player.name}: {e}")
 
-    await queue_pop_sound()
+    # await queue_pop_sound()
     start_time = time.time()
     while (
         any(player not in accepted for player in init.QUEUE)
@@ -199,7 +199,7 @@ async def queue_pop(ctx):
 
 
 async def queue_pop_sound():
-    source = discord.FFmpegPCMAudio(init.QUEUEPOP_MP3)
+    source = discord.FFmpegOpusAudio(init.QUEUEPOP_MP3)
     v_client = await init.VOICE_CHANNEL.connect()
     v_client.play(source)
     while v_client.is_playing():

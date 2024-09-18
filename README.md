@@ -73,7 +73,9 @@ A Discord bot designed to queue 10 players into CS2 workshop map games, with aut
 7. **Match End**: After the game, an admin or captain ends the match, in which the bot will shut down the server and log the results in the games-log channel.
 
 ## Visual Guide
-*Insert image workflow here*
+| ![image](readme-images/queue.png) | ![image](readme-images/ready.png) | ![image](readme-images/game-ongoing.png) |
+| ![image](readme-images/player-picks.png) | ![image](readme-images/category-veto.png) | ![image](readme-images/map-veto.png) |
+| ![image](readme-images/final-map.png) | ![image](readme-images/games-log.png) |
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
