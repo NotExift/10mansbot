@@ -173,7 +173,7 @@ async def queue_pop(ctx):
         except Exception as e:
             print(f"Couldn't send message to {player.name}: {e}")
 
-    # await queue_pop_sound()
+    await queue_pop_sound()
     start_time = time.time()
     while (
         any(player not in accepted for player in init.QUEUE)
