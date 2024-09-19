@@ -21,7 +21,7 @@ A Discord bot designed to queue 10 players into CS2 workshop map games, with aut
 ### Installation
 *Still under construction*
 1. Clone this repository. ```git clone https://github.com/NotExift/10mansbot.git```
-2. Install dependencies. ```npm install```
+2. Install dependencies. ```pip install python-valve discord.py discord-py-interactions python-dotenv beautifulsoup4 pillow pynacl``` and ```apt-get update && apt-get install -y ffmpeg```
 
 ### Configuration
 1. Configure environment variables.
@@ -33,8 +33,11 @@ A Discord bot designed to queue 10 players into CS2 workshop map games, with aut
     - `GAMELOG_CHANNEL` = Your Discord server's `#games-log` channel
     - `VOICE_CHANNEL` = Your Discord server's primary voice channel
     - `API_KEY` = Your Discord bot token.
-    - *Many more I'm sure*
-2. Start the bot. `python bot/main.py`
+    - `MAX_CONFIG_FILES` = Your maximum allowed configs (map/category veto configs)
+    - `CONFIG_DIRECTORY` = Where your configs are located
+    - `QUEUE_POP_AUDIO` = Your queue pop audio
+    - `CLEARCHANNEL_ON_STARTUP` = True or False
+2. Start the bot. `python bot/main.py`. Alternatively run a Docker container (will handle dependencies as well)
 
 ## Commands
 
@@ -73,9 +76,9 @@ A Discord bot designed to queue 10 players into CS2 workshop map games, with aut
 7. **Match End**: After the game, an admin or captain ends the match, in which the bot will shut down the server and log the results in the games-log channel.
 
 ## Visual Guide
-| ![image](readme-images/queue.png) | ![image](readme-images/ready.png) | ![image](readme-images/game-ongoing.png) |
-| ![image](readme-images/player-picks.png) | ![image](readme-images/category-veto.png) | ![image](readme-images/map-veto.png) |
-| ![image](readme-images/final-map.png) | ![image](readme-images/games-log.png) |
+![image](readme-images/queue.png) ![image](readme-images/ready.png) ![image](readme-images/game-ongoing.png)
+![image](readme-images/player-picks.png) ![image](readme-images/category-veto.png) ![image](readme-images/map-veto.png)
+![image](readme-images/final-map.png) ![image](readme-images/games-log.png)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
